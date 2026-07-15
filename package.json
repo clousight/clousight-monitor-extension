@@ -47,7 +47,10 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "commit": "bash scripts/git-commit.sh"
+    "git": "bash scripts/git.sh",
+    "commit": "bash scripts/git-commit.sh",
+    "push": "bash scripts/git.sh push",
+    "pull": "bash scripts/git.sh pull"
   },
   "dependencies": {
     "fast-xml-parser": "^4.5.7",

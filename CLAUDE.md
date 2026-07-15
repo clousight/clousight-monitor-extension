@@ -19,20 +19,26 @@ npm run lint && npm run typecheck && npm test && npm run build
 
 CI runs lint · typecheck · test · build on Node 20 & 22. Keep all green.
 
-## Committing
+## Git (commit / push / pull)
 
 This repo stores **no git identity** — the local `user.name`/`user.email` are
-left empty on purpose, so a plain `git commit` fails ("Author identity unknown")
-instead of leaking a personal/global identity. Always commit through the script,
-which stamps the project identity at commit time only:
+left empty on purpose, so a plain `git` operation that records an author fails
+("Author identity unknown") instead of leaking a personal/global identity.
+
+Run **every** git operation through `scripts/git.sh`, which stamps the project
+identity (`Clousight <clousight@users.noreply.github.com>`) at run time only,
+writing nothing to `.git/config`:
 
 ```bash
-npm run commit -- -m "feat: ..."      # or: ./scripts/git-commit.sh -m "..."
+npm run commit -- -m "feat: ..."   # scripts/git.sh commit ...
+npm run push                       # scripts/git.sh push
+npm run pull                       # scripts/git.sh pull
+npm run git -- <any git args>      # e.g. npm run git -- push -u origin main
 ```
 
-Override per-commit with `CLOUSIGHT_GIT_NAME` / `CLOUSIGHT_GIT_EMAIL` env vars.
-Never run `git commit` directly, and never write user.name/user.email into
-`.git/config`.
+Override the identity with `CLOUSIGHT_GIT_NAME` / `CLOUSIGHT_GIT_EMAIL` env vars.
+Never run `git commit`/`git push` directly, and never write user.name/user.email
+into `.git/config`.
 
 ## Layout
 

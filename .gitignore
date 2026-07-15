@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.zip
+
+# Local env / secrets
+.env
+.env.*
+!.env.example
+.DS_Store
+*.local
+
+# Playwright / test artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Vitest / coverage
+/coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Editor
+.idea/
+.vscode/
+*.swp

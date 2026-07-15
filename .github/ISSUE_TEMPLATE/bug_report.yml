@@ -1,0 +1,49 @@
+name: 🐛 Bug report
+description: Report something that isn't working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a bug! Please fill out the details below.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+      placeholder: When I enable AWS, the badge never updates…
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Load the extension
+        2. Open Settings and enable …
+        3. …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & version
+      placeholder: Chrome 130, Edge 130, Brave …
+    validations:
+      required: true
+  - type: input
+    id: ext-version
+    attributes:
+      label: Extension version / commit
+      placeholder: 0.1.0 or a git SHA
+  - type: textarea
+    id: console
+    attributes:
+      label: Relevant console / service-worker logs
+      description: From chrome://extensions → Inspect views → service worker.
+      render: shell

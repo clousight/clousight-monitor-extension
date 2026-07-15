@@ -1,0 +1,37 @@
+name: 🌩️ Add a cloud provider
+description: Request or propose support for a new cloud provider
+labels: [provider]
+body:
+  - type: markdown
+    attributes:
+      value: See [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md#adding-a-provider) — provider additions make great pull requests!
+  - type: input
+    id: provider-name
+    attributes:
+      label: Provider name
+      placeholder: Oracle Cloud, DigitalOcean, Cloudflare …
+    validations:
+      required: true
+  - type: input
+    id: status-page
+    attributes:
+      label: Official status page URL
+      placeholder: https://…/status
+    validations:
+      required: true
+  - type: input
+    id: feed-url
+    attributes:
+      label: Machine-readable feed URL (if known)
+      placeholder: RSS, or /api/v2/incidents.json (Statuspage), or a JSON endpoint
+  - type: dropdown
+    id: feed-type
+    attributes:
+      label: Feed type
+      options:
+        - RSS/Atom
+        - Statuspage (/api/v2/incidents.json)
+        - Other JSON
+        - Not sure
+    validations:
+      required: true

@@ -1,6 +1,6 @@
 # 架构
 
-Clousight 是一款**零后端**的 Manifest V3（MV3）浏览器扩展。获取云厂商状态、将其
+云计算指北 是一款**零后端**的 Manifest V3（MV3）浏览器扩展。获取云厂商状态、将其
 与你的规则匹配、以及存储通知，全部在扩展内部本地完成。没有服务器、没有账号、也
 没有遥测。
 
@@ -90,7 +90,7 @@ Vue 3 + Pinia 界面（弹窗 + 页面）
 
 ## MV3 约束
 
-MV3 的 service worker 带来了两项值得注意的约束，Clousight 对其做了规避：
+MV3 的 service worker 带来了两项值得注意的约束，云计算指北 对其做了规避：
 
 - service worker 中**没有 `DOMParser`**，因此 RSS 使用 `fast-xml-parser` 解析，
   而非 DOM。

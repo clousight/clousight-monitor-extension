@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: Clousight
+  name: 云计算指北
   text: 在浏览器里看多云状态
   tagline: 零后端、无账号、无追踪 —— 云状态,本地监控。
   actions:

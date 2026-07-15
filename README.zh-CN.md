@@ -1,4 +1,4 @@
-# Clousight — 多云状态监控（浏览器插件）
+# 云计算指北 — 多云状态监控（浏览器插件）
 
 [![CI](https://github.com/clousight/clousight-monitor-extension/actions/workflows/ci.yml/badge.svg)](https://github.com/clousight/clousight-monitor-extension/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -8,11 +8,11 @@
 
 > 在浏览器工具栏直接盯住主流云厂商的健康状态 —— **无账号、无服务器、不收集数据。**
 
-Clousight 是一个 Manifest V3 浏览器插件,持续关注全球主流云厂商的公开状态源,把事件以工具栏徽章和浏览器原生通知的形式呈现。一切都在你的浏览器本地运行;事件详情跳转到各厂商的官方状态页。
+云计算指北 是一个 Manifest V3 浏览器插件,持续关注全球主流云厂商的公开状态源,把事件以工具栏徽章和浏览器原生通知的形式呈现。一切都在你的浏览器本地运行;事件详情跳转到各厂商的官方状态页。
 
-Clousight（中文名 **云计算指北**）是一个独立的开源项目。
+**云计算指北**（英文名 Clousight）是一个独立的开源项目。
 
-## 为什么用 Clousight
+## 为什么用 云计算指北
 
 - **零后端** —— 无需登录、无需云账号、不向任何服务器上报。插件直接抓取各厂商的公开状态源。
 - **隐私友好** —— 你的厂商选择、过滤条件、设置都存在 `chrome.storage`。除了你选择关注的厂商请求,没有任何数据离开你的机器。

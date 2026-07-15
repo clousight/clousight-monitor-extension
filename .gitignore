@@ -30,3 +30,7 @@ yarn-error.log*
 .idea/
 .vscode/
 *.swp
+
+# VitePress build output
+docs/.vitepress/dist/
+docs/.vitepress/cache/

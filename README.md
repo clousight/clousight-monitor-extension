@@ -4,13 +4,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
+**English** · [简体中文](README.zh-CN.md) · [📖 Documentation](https://clousight.github.io/clousight-monitor-extension/)
+
 > Watch the health of the major cloud providers straight from your browser toolbar — **no account, no server, no data collection.**
 
 Clousight is a Manifest V3 browser extension that keeps an eye on the public status feeds of the world's major cloud providers and surfaces incidents as a toolbar badge and native browser notifications. Everything runs locally in your browser; incident details link out to each provider's official status page.
 
 Part of the **CloudNorth (云计算指北)** family of open tools.
-
-> 🚧 **Project status: active development.** The UI, i18n (9 languages), and build pipeline are in place. The local status-fetching layer (moving ingestion from a server into the extension's background worker) is in progress — see the [Roadmap](#roadmap).
 
 ## Why Clousight
 
@@ -116,9 +116,13 @@ No account, no server, no tracking. All data stays in your browser; the only
 network requests are to the provider status feeds you enable (and, optionally,
 your own LLM endpoint). See [PRIVACY.md](PRIVACY.md).
 
-## Architecture
+## Documentation
 
-Everything runs locally in the extension — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the fetch → match → notify flow, the provider ingestion layer, and the local `chrome.storage` data model.
+Full docs (English + 简体中文) are at
+**<https://clousight.github.io/clousight-monitor-extension/>**:
+
+- [Installation](docs/installation.md) · [Usage](docs/usage.md) · [Best Practices](docs/best-practices.md) · [FAQ](docs/faq.md)
+- [Architecture](docs/architecture.md) — the fetch → match → notify flow, provider ingestion, and local storage model.
 
 ## Contributing
 

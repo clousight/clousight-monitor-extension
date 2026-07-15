@@ -34,7 +34,7 @@ jobs:
         run: cd dist && zip -r "../clousight-extension-${{ github.ref_name }}.zip" . && cd ..
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: clousight-extension-${{ github.ref_name }}.zip
           generate_release_notes: true

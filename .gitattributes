@@ -1,0 +1,18 @@
+# Normalize line endings to LF across platforms.
+* text=auto eol=lf
+
+# Binary assets — never normalize or diff.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+
+# Keep shell scripts LF even on Windows checkouts.
+*.sh text eol=lf
+
+# Collapse noisy generated files in diffs/reviews.
+package-lock.json linguist-generated=true

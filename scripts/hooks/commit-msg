@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Strip AI-assistant attribution from commit messages. Enforced (not optional):
+# activated via core.hooksPath by scripts/git.sh, so it runs on every scripted
+# commit regardless of the message passed in.
+#
+set -euo pipefail
+
+msg_file="$1"
+
+# Remove any co-author / "generated with" / tool-link / robot-emoji lines that
+# reference an AI assistant.
+sed -i.bak -E \
+  -e '/[Cc]o-[Aa]uthored-[Bb]y:.*([Cc]laude|[Aa]nthropic)/d' \
+  -e '/[Gg]enerated with.*[Cc]laude/d' \
+  -e '/claude\.(ai|com)/d' \
+  -e '/🤖/d' \
+  "$msg_file"
+rm -f "$msg_file.bak"

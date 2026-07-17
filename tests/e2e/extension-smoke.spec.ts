@@ -5,7 +5,11 @@ import path from 'path';
 
 const repoRoot = path.join(__dirname, '..', '..');
 const extensionPath = path.join(repoRoot, 'dist');
-const popupWidths = [320, 360, 375];
+const popupWidths = [
+  { viewport: 320, expectedRoot: 320 },
+  { viewport: 360, expectedRoot: 360 },
+  { viewport: 375, expectedRoot: 360 }
+];
 
 function getBuiltExtensionVersion(): string {
   const manifest = JSON.parse(
@@ -31,7 +35,9 @@ test.describe('Clousight extension (dist)', () => {
     });
 
     try {
-      const serviceWorker = await context.waitForEvent('serviceworker');
+      const serviceWorker =
+        context.serviceWorkers()[0] ??
+        (await context.waitForEvent('serviceworker', { timeout: 30_000 }));
       const extensionId = new URL(serviceWorker.url()).host;
 
       // Options page mounts the SPA.
@@ -66,16 +72,21 @@ test.describe('Clousight extension (dist)', () => {
       await expect(popup.getByText(`v${extensionVersion}`, { exact: true })).toBeVisible();
       await expect(popup.locator('html')).not.toHaveClass(/dark/);
 
-      for (const width of popupWidths) {
-        await popup.setViewportSize({ width, height: 720 });
+      const popupRoot = popup.getByTestId('popup-root');
+      for (const { viewport, expectedRoot } of popupWidths) {
+        await popup.setViewportSize({ width: viewport, height: 720 });
         const { scrollWidth, clientWidth } = await popup.evaluate(() => ({
           scrollWidth: document.documentElement.scrollWidth,
           clientWidth: document.documentElement.clientWidth
         }));
         expect(
           scrollWidth,
-          `popup should not overflow horizontally at ${width}px`
+          `popup should not overflow horizontally at ${viewport}px`
         ).toBeLessThanOrEqual(clientWidth);
+        await expect(
+          popupRoot,
+          `popup root should be ${expectedRoot}px wide at ${viewport}px`
+        ).toHaveCSS('width', `${expectedRoot}px`);
       }
     } finally {
       await context.close();

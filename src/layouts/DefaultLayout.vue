@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container" :class="{ dark: isDarkMode }">
+  <div class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
     <div class="app-layout">
       <aside
-        class="sidebar h-full w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-700 max-[768px]:fixed max-[768px]:inset-x-0 max-[768px]:top-0 max-[768px]:h-16 max-[768px]:w-full max-[768px]:border-r-0"
+        class="sidebar w-64 max-[768px]:fixed max-[768px]:inset-x-0 max-[768px]:top-0 max-[768px]:h-16 max-[768px]:w-full max-[768px]:border-r-0"
       >
         <header class="sidebar-header mobile-top-header max-[768px]:w-full">
           <AppBrand compact class="sidebar-brand max-[768px]:min-w-0 max-[768px]:flex-1" />
@@ -20,7 +20,7 @@
 
         <div
           id="sidebar-nav-panel"
-          class="sidebar-content mobile-drawer max-[768px]:fixed max-[768px]:top-16 max-[768px]:bottom-0 max-[768px]:left-0 max-[768px]:w-64 max-[768px]:border-r max-[768px]:border-slate-200 max-[768px]:bg-white max-[768px]:shadow-xl max-[768px]:transform max-[768px]:-translate-x-full max-[768px]:transition-transform max-[768px]:duration-200 max-[768px]:ease-out motion-reduce:max-[768px]:transition-none dark:max-[768px]:border-slate-700 dark:max-[768px]:bg-slate-800"
+          class="sidebar-content mobile-drawer max-[768px]:fixed max-[768px]:top-16 max-[768px]:bottom-0 max-[768px]:left-0 max-[768px]:w-64 max-[768px]:border-r max-[768px]:border-slate-200 max-[768px]:shadow-xl max-[768px]:transform max-[768px]:-translate-x-full max-[768px]:transition-transform max-[768px]:duration-200 max-[768px]:ease-out motion-reduce:max-[768px]:transition-none dark:max-[768px]:border-slate-800"
           :class="{
             'sidebar-open': sidebarOpen,
             'max-[768px]:translate-x-0': sidebarOpen
@@ -31,7 +31,7 @@
       </aside>
 
       <main
-        class="main-content mobile-main-content p-6 max-[768px]:px-4 max-[768px]:pb-4 max-[768px]:pt-20"
+        class="main-content mobile-main-content max-[768px]:px-4 max-[768px]:pb-4 max-[768px]:pt-20"
       >
         <div class="content-container">
           <slot></slot>
@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/stores/userStore';
 import AppNavigation from '@/components/AppNavigation.vue';
@@ -75,11 +75,6 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 };
 
-// Get dark mode status from user store
-const isDarkMode = computed(() => {
-  return userStore.effectiveTheme === 'dark';
-});
-
 // Initialize
 onMounted(() => {
   // Add click listener for mobile sidebar
@@ -98,32 +93,16 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.app-container {
-  @apply bg-slate-50 text-slate-800 min-h-screen;
-}
-
-.app-container.dark {
-  @apply bg-slate-900 text-slate-100;
-}
-
 .app-layout {
   @apply flex h-screen overflow-hidden;
 }
 
 .sidebar {
-  @apply bg-white flex flex-col z-20;
-}
-
-.app-container.dark .sidebar {
-  @apply bg-slate-800;
+  @apply z-20 flex h-full w-64 flex-shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900;
 }
 
 .sidebar-header {
-  @apply flex justify-between items-center h-16 px-4 border-b border-slate-200;
-}
-
-.app-container.dark .sidebar-header {
-  @apply border-slate-700;
+  @apply flex h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-800;
 }
 
 .mobile-toggle {
@@ -131,18 +110,14 @@ onBeforeUnmount(() => {
 }
 
 .sidebar-content {
-  @apply flex-1 overflow-y-auto;
+  @apply flex-1 overflow-y-auto bg-white dark:bg-slate-900;
 }
 
 .main-content {
-  @apply flex-1 overflow-y-auto bg-slate-50;
-}
-
-.app-container.dark .main-content {
-  @apply bg-slate-900;
+  @apply flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-6 dark:bg-slate-950;
 }
 
 .content-container {
-  @apply max-w-7xl mx-auto;
+  @apply mx-auto max-w-7xl;
 }
 </style>

@@ -27,6 +27,23 @@ const i18n = createI18n({
 });
 
 describe('DefaultLayout mobile navigation', () => {
+  it('uses the global dark class for the full-page shell', () => {
+    const wrapper = shallowMount(DefaultLayout, {
+      global: { plugins: [i18n] }
+    });
+
+    expect(wrapper.classes()).toEqual(
+      expect.arrayContaining([
+        'min-h-screen',
+        'bg-slate-50',
+        'text-slate-900',
+        'dark:bg-slate-950',
+        'dark:text-slate-100'
+      ])
+    );
+    expect(wrapper.classes()).not.toContain('app-container');
+  });
+
   it('separates the full-width mobile header from its drawer and main content', () => {
     const wrapper = shallowMount(DefaultLayout, {
       global: { plugins: [i18n] }

@@ -4,6 +4,7 @@ import App from './App.vue';
 import router from './router';
 import { i18n, setGlobalLocale, translateRouteTitle } from './i18n';
 import { useUserStore } from './stores/userStore';
+import { bootstrapTheme } from './utils/themeBootstrap';
 
 function syncRouteDocumentTitle(): void {
   const to = router.currentRoute.value;
@@ -13,6 +14,8 @@ function syncRouteDocumentTitle(): void {
 }
 
 async function bootstrap(): Promise<void> {
+  await bootstrapTheme();
+
   const app = createApp(App);
   const pinia = createPinia();
   app.use(pinia);

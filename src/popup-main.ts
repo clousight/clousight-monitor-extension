@@ -4,8 +4,11 @@ import PopupApp from './PopupApp.vue';
 import './assets/tailwind.css';
 import { i18n, setGlobalLocale } from './i18n';
 import { useUserStore } from './stores/userStore';
+import { bootstrapTheme } from './utils/themeBootstrap';
 
 async function bootstrap(): Promise<void> {
+  await bootstrapTheme();
+
   const app = createApp(PopupApp);
   const pinia = createPinia();
   app.use(pinia);

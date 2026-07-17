@@ -8,11 +8,16 @@ import { setGlobalLocale } from '@/i18n';
 import type { LocalePreference } from '@/utils/detectLocale';
 import { migrateLegacyLocaleCode, SUPPORTED_LOCALES } from '@/utils/detectLocale';
 import { VERIFIED_PROVIDERS } from '@/services/providers/registry';
+import {
+  applyThemeClass,
+  resolveTheme,
+  type ThemePreference
+} from '@/utils/themeBootstrap';
 
 interface UserSettings {
   /** UI language: auto follows Chrome UI / browser language. */
   localePreference: LocalePreference;
-  theme: 'light' | 'dark' | 'system';
+  theme: ThemePreference;
   /** How often the background worker polls provider status, in minutes. */
   checkInterval: number;
   /** Run a status check when the browser/extension starts. */
@@ -43,6 +48,10 @@ interface UserState {
   settings: UserSettings;
 }
 
+const systemThemeMedia =
+  typeof matchMedia === 'undefined' ? null : matchMedia('(prefers-color-scheme: dark)');
+let systemThemeChangeListener: (() => void) | null = null;
+
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
     isInitialized: false,
@@ -72,18 +81,15 @@ export const useUserStore = defineStore('user', {
 
   getters: {
     /** Effective theme based on settings and system preference. */
-    effectiveTheme: (state): 'light' | 'dark' => {
-      if (state.settings.theme === 'system') {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-      return state.settings.theme;
-    }
+    effectiveTheme: (state): 'light' | 'dark' =>
+      resolveTheme(state.settings.theme, systemThemeMedia?.matches ?? false)
   },
 
   actions: {
     async initialize() {
       await this.loadSettings();
       this.applyTheme();
+      this.startSystemThemeSync();
       this.isInitialized = true;
     },
 
@@ -148,14 +154,26 @@ export const useUserStore = defineStore('user', {
     },
 
     applyTheme() {
-      if (this.effectiveTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      applyThemeClass(this.settings.theme);
     },
 
-    setTheme(theme: 'light' | 'dark' | 'system') {
+    startSystemThemeSync() {
+      if (!systemThemeMedia || systemThemeChangeListener) {
+        return;
+      }
+      systemThemeChangeListener = () => this.applyTheme();
+      systemThemeMedia.addEventListener('change', systemThemeChangeListener);
+    },
+
+    stopSystemThemeSync() {
+      if (!systemThemeMedia || !systemThemeChangeListener) {
+        return;
+      }
+      systemThemeMedia.removeEventListener('change', systemThemeChangeListener);
+      systemThemeChangeListener = null;
+    },
+
+    setTheme(theme: ThemePreference) {
       this.settings.theme = theme;
       this.applyTheme();
       void this.saveSettings();

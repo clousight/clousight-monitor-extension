@@ -38,9 +38,7 @@
       <div v-for="provider in providerCards" :key="provider.id" class="provider-card">
         <div class="card-header">
           <h2 class="provider-name">{{ provider.name }}</h2>
-          <div class="status-indicator" :class="getStatusClass(provider.overall)">
-            {{ formatStatus(provider.overall) }}
-          </div>
+          <StatusBadge :status="provider.worst" />
         </div>
 
         <div class="card-body">
@@ -58,22 +56,22 @@
 
           <div class="status-row">
             <div class="status-item status-operational">
-              <span class="value">{{ provider.status.operational }}</span>
+              <span class="value">{{ provider.counts.operational }}</span>
               <span class="label">{{ t('common.operational') }}</span>
             </div>
 
             <div class="status-item status-degraded">
-              <span class="value">{{ provider.status.degraded }}</span>
+              <span class="value">{{ provider.counts.degraded }}</span>
               <span class="label">{{ t('common.degraded') }}</span>
             </div>
 
             <div class="status-item status-outage">
-              <span class="value">{{ provider.status.outage }}</span>
+              <span class="value">{{ provider.counts.outage }}</span>
               <span class="label">{{ t('common.outage') }}</span>
             </div>
 
             <div class="status-item status-maintenance">
-              <span class="value">{{ provider.status.maintenance }}</span>
+              <span class="value">{{ provider.counts.maintenance }}</span>
               <span class="label">{{ t('common.maintenance') }}</span>
             </div>
           </div>
@@ -102,9 +100,9 @@
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStatusStore } from '@/stores/statusStore';
-import { StatusType } from '@/types/status';
 import AppIcon from '@/components/AppIcon.vue';
-import { getProvider } from '@/services/providers/registry';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { deriveProviderSummaries } from '@/utils/statusSummary';
 
 const { t } = useI18n();
 const statusStore = useStatusStore();
@@ -135,73 +133,7 @@ async function refreshStatus() {
 }
 
 // Provider cards data
-const providerCards = computed(() => {
-  // Use unfiltered services: this page has no filter UI, so it must not inherit
-  // a filter set elsewhere (e.g. the Dashboard).
-  const services = statusStore.services;
-  const providers = new Map();
-
-  // Group services by provider
-  services.forEach(service => {
-    const providerId = service.provider.toLowerCase();
-
-    if (!providers.has(providerId)) {
-      providers.set(providerId, {
-        id: providerId,
-        name: service.provider,
-        total: 0,
-        regions: new Set(),
-        status: {
-          operational: 0,
-          degraded: 0,
-          outage: 0,
-          maintenance: 0
-        },
-        overall: 'operational' as StatusType
-      });
-    }
-
-    const provider = providers.get(providerId);
-    provider.total++;
-    provider.regions.add(service.regionId || service.region);
-    provider.status[service.status]++;
-
-    // Update overall status (prioritize worst status)
-    if (
-      service.status === 'outage' ||
-      (service.status === 'degraded' && provider.overall !== 'outage') ||
-      (service.status === 'maintenance' && provider.overall === 'operational')
-    ) {
-      provider.overall = service.status;
-    }
-  });
-
-  // Convert to array, add region count and the provider's official status-page URL
-  return Array.from(providers.values()).map(provider => {
-    return {
-      ...provider,
-      regions: provider.regions.size,
-      statusPageUrl: getProvider(provider.id)?.statusPageUrl
-    };
-  });
-});
-
-// Get CSS class for status
-function getStatusClass(status: StatusType): string {
-  return `status-${status}`;
-}
-
-// Format status for display
-function formatStatus(status: StatusType): string {
-  const map: Record<StatusType, string> = {
-    operational: 'operational',
-    degraded: 'degraded',
-    outage: 'outage',
-    maintenance: 'maintenance'
-  };
-  const k = map[status] ?? 'unknown';
-  return t(`status.overall.${k}`);
-}
+const providerCards = computed(() => deriveProviderSummaries(statusStore.services));
 </script>
 
 <style scoped>
@@ -259,10 +191,6 @@ function formatStatus(status: StatusType): string {
 
 .provider-name {
   @apply text-lg font-medium text-slate-800 dark:text-slate-200;
-}
-
-.status-indicator {
-  @apply px-2 py-1 text-xs font-medium rounded-full;
 }
 
 .status-operational {

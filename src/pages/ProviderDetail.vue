@@ -42,9 +42,7 @@
       <div class="status-summary-section">
         <div class="overall-status">
           <div class="status-label">{{ t('providerDetail.overallStatus') }}</div>
-          <div class="status-value" :class="`status-${overallStatus}`">
-            {{ formatStatus(overallStatus) }}
-          </div>
+          <StatusBadge :status="overallStatus" />
         </div>
 
         <div class="stats-grid">
@@ -125,11 +123,7 @@
                 <td>{{ service.serviceName }}</td>
                 <td>{{ service.region }}</td>
                 <td>{{ formatCategory(service.category) }}</td>
-                <td>
-                  <div class="status-badge" :class="`bg-status-${service.status}`">
-                    {{ formatStatus(service.status) }}
-                  </div>
-                </td>
+                <td><StatusBadge :status="service.status" /></td>
                 <td>{{ formatTime(service.updatedAt) }}</td>
                 <td>
                   <a
@@ -158,6 +152,8 @@ import { useI18n } from 'vue-i18n';
 import { useStatusStore } from '@/stores/statusStore';
 import { StatusType } from '@/types/status';
 import AppIcon from '@/components/AppIcon.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { getProviderDisplayName } from '@/utils/providerDisplay';
 
 const { t, locale } = useI18n();
 const router = useRouter();
@@ -229,8 +225,7 @@ const hasProviderData = computed(() => providerServices.value.length > 0);
 
 // Provider name
 const providerName = computed(() => {
-  if (!hasProviderData.value) return t('providerDetail.unknownProvider');
-  return providerServices.value[0].provider;
+  return getProviderDisplayName(providerId.value);
 });
 
 // Filtered services by active region
@@ -275,18 +270,6 @@ const stats = computed(() => {
     maintenance: services.filter(s => s.status === 'maintenance').length
   };
 });
-
-// Format status for display
-function formatStatus(status: string): string {
-  const allowed: Record<string, string> = {
-    operational: 'operational',
-    degraded: 'degraded',
-    outage: 'outage',
-    maintenance: 'maintenance'
-  };
-  const s = allowed[status] ?? 'unknown';
-  return t(`status.short.${s}`);
-}
 
 function formatCategory(category: string | undefined): string {
   if (!category) return t('common.unknown');
@@ -400,10 +383,6 @@ function formatTime(timestamp: number): string {
   @apply text-sm text-slate-500 dark:text-slate-400 font-medium mb-1;
 }
 
-.status-value {
-  @apply text-2xl font-bold;
-}
-
 .stats-grid {
   @apply grid grid-cols-2 md:grid-cols-4 gap-4;
 }
@@ -492,9 +471,5 @@ tr.highlight {
 
 td {
   @apply px-4 py-3 whitespace-nowrap text-sm text-slate-800 dark:text-slate-200;
-}
-
-.status-badge {
-  @apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium;
 }
 </style>

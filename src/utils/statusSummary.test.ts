@@ -40,6 +40,12 @@ describe('statusSummary', () => {
     expect(rows.map(row => row.code)).toEqual(['GCP', 'AZURE', 'AWS']);
   });
 
+  it('uses official names and status-page URLs from the registry', () => {
+    const [summary] = deriveProviderSummaries([service('AWS', 'operational')]);
+    expect(summary.name).toBe('Amazon Web Services');
+    expect(summary.statusPageUrl).toBe('https://health.aws.amazon.com/health/status');
+  });
+
   it('derives provider-level overall health', () => {
     const health = deriveOverallHealth(
       deriveProviderSummaries([

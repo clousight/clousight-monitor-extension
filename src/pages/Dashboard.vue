@@ -17,25 +17,25 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-title">{{ t('common.operational') }}</div>
-          <div class="stat-value status-operational">{{ stats.operational }}</div>
+          <div class="stat-value status-operational">{{ overallHealth.operational }}</div>
           <div class="stat-desc">{{ t('status.desc.operational') }}</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-title">{{ t('common.degraded') }}</div>
-          <div class="stat-value status-degraded">{{ stats.degraded }}</div>
+          <div class="stat-value status-degraded">{{ overallHealth.degraded }}</div>
           <div class="stat-desc">{{ t('status.desc.degraded') }}</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-title">{{ t('common.outage') }}</div>
-          <div class="stat-value status-outage">{{ stats.outage }}</div>
+          <div class="stat-value status-outage">{{ overallHealth.outage }}</div>
           <div class="stat-desc">{{ t('status.desc.outage') }}</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-title">{{ t('common.maintenance') }}</div>
-          <div class="stat-value status-maintenance">{{ stats.maintenance }}</div>
+          <div class="stat-value status-maintenance">{{ overallHealth.maintenance }}</div>
           <div class="stat-desc">{{ t('status.desc.maintenance') }}</div>
         </div>
       </div>
@@ -182,15 +182,11 @@
             </thead>
             <tbody>
               <tr v-for="service in filteredServices" :key="service.id">
-                <td>{{ service.provider }}</td>
+                <td>{{ getProviderDisplayName(service.provider) }}</td>
                 <td>{{ service.serviceName }}</td>
                 <td>{{ service.region }}</td>
                 <td>{{ formatCategory(service.category) }}</td>
-                <td>
-                  <div class="status-badge" :class="`bg-status-${service.status}`">
-                    {{ formatStatus(service.status) }}
-                  </div>
-                </td>
+                <td><StatusBadge :status="service.status" /></td>
                 <td>{{ formatTime(service.updatedAt) }}</td>
                 <td>
                   <a
@@ -219,6 +215,9 @@ import { useStatusStore } from '@/stores/statusStore';
 import { useStatusLastUpdated } from '@/composables/useStatusLastUpdated';
 import { StatusType } from '@/types/status';
 import AppIcon from '@/components/AppIcon.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { getProviderDisplayName } from '@/utils/providerDisplay';
+import { deriveOverallHealth, deriveProviderSummaries } from '@/utils/statusSummary';
 
 const { t, locale } = useI18n();
 const statusStore = useStatusStore();
@@ -246,7 +245,8 @@ onMounted(async () => {
 });
 
 // Get computed values from store
-const stats = computed(() => statusStore.stats);
+const providerSummaries = computed(() => deriveProviderSummaries(statusStore.services));
+const overallHealth = computed(() => deriveOverallHealth(providerSummaries.value));
 const providers = computed(() => statusStore.providers);
 const regions = computed(() => statusStore.regions);
 const categories = computed(() => statusStore.categories);
@@ -294,17 +294,6 @@ function formatCategory(category: string | undefined): string {
   if (!category) return t('common.unknown');
 
   return category.charAt(0).toUpperCase() + category.slice(1);
-}
-
-function formatStatus(status: string): string {
-  const allowed: Record<string, string> = {
-    operational: 'operational',
-    degraded: 'degraded',
-    outage: 'outage',
-    maintenance: 'maintenance'
-  };
-  const s = allowed[status] ?? 'unknown';
-  return t(`status.short.${s}`);
 }
 
 function formatTime(timestamp: number): string {
@@ -501,10 +490,6 @@ tr {
 
 td {
   @apply px-4 py-3 whitespace-nowrap text-sm text-slate-800 dark:text-slate-200;
-}
-
-.status-badge {
-  @apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium;
 }
 
 @media (max-width: 640px) {

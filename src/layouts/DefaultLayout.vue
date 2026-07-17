@@ -2,11 +2,11 @@
   <div class="app-container" :class="{ dark: isDarkMode }">
     <div class="app-layout">
       <aside class="sidebar">
-        <div class="sidebar-header">
+        <header class="sidebar-header mobile-top-header">
           <AppBrand compact class="sidebar-brand" />
           <button
             type="button"
-            class="mobile-toggle"
+            class="mobile-toggle min-h-[44px] min-w-[44px]"
             :aria-expanded="sidebarOpen"
             aria-controls="sidebar-nav-panel"
             :aria-label="sidebarOpen ? t('nav.closeMenu') : t('nav.openMenu')"
@@ -14,18 +14,18 @@
           >
             <AppIcon :name="sidebarOpen ? 'close' : 'menu'" size="1.5rem" />
           </button>
-        </div>
+        </header>
 
         <div
           id="sidebar-nav-panel"
-          class="sidebar-content"
+          class="sidebar-content mobile-drawer"
           :class="{ 'sidebar-open': sidebarOpen }"
         >
           <AppNavigation />
         </div>
       </aside>
 
-      <main class="main-content">
+      <main class="main-content mobile-main-content">
         <div class="content-container">
           <slot></slot>
         </div>
@@ -120,7 +120,7 @@ onBeforeUnmount(() => {
 }
 
 .mobile-toggle {
-  @apply hidden min-h-[44px] min-w-[44px] items-center justify-center p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800;
+  @apply hidden items-center justify-center p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800;
 }
 
 .sidebar-content {
@@ -142,23 +142,27 @@ onBeforeUnmount(() => {
 /* Mobile Styles */
 @media (max-width: 768px) {
   .sidebar {
-    @apply w-16;
+    @apply fixed inset-x-0 top-0 h-16 w-full;
   }
 
-  .sidebar-brand :deep([data-brand-text]) {
-    @apply hidden;
+  .sidebar-header {
+    @apply w-full;
+  }
+
+  .sidebar-brand {
+    @apply min-w-0 flex-1;
   }
 
   .mobile-toggle {
-    @apply flex;
+    @apply flex shrink-0;
   }
 
   .sidebar-content {
-    @apply fixed top-16 left-0 w-64 bottom-0 bg-white transform -translate-x-full transition-transform duration-200 ease-out motion-reduce:transition-none;
+    @apply fixed top-16 bottom-0 left-0 w-64 border-r border-slate-200 bg-white shadow-xl transform -translate-x-full transition-transform duration-200 ease-out motion-reduce:transition-none;
   }
 
   .app-container.dark .sidebar-content {
-    @apply bg-slate-800;
+    @apply border-slate-700 bg-slate-800;
   }
 
   .sidebar-content.sidebar-open {
@@ -166,7 +170,7 @@ onBeforeUnmount(() => {
   }
 
   .main-content {
-    @apply p-4;
+    @apply px-4 pb-4 pt-20;
   }
 }
 </style>

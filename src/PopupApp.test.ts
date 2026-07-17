@@ -95,6 +95,14 @@ describe('PopupApp', () => {
     expect(wrapper.text()).toContain('No provider status is available yet.');
   });
 
+  it('caps the preferred popup width to the viewport using border-box sizing', () => {
+    const { wrapper } = setup();
+
+    expect(wrapper.classes()).toEqual(
+      expect.arrayContaining(['w-[360px]', 'max-w-[100vw]', 'box-border'])
+    );
+  });
+
   it('shows a fatal error with a working retry when no retained data exists', async () => {
     const pinia = createPinia();
     setActivePinia(pinia);

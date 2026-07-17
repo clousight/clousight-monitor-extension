@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-[360px] border border-slate-200 bg-slate-50 p-4 text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+    class="box-border w-[360px] max-w-[100vw] border border-slate-200 bg-slate-50 p-4 text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
   >
     <header class="mb-4 flex items-center justify-between gap-3">
       <AppBrand compact :subtitle="t('popup.tagline')" />

@@ -20,6 +20,29 @@
         </div>
       </section>
 
+      <!-- Appearance -->
+      <section class="settings-section">
+        <h3 class="section-title">{{ t('settings.themeSection') }}</h3>
+        <p class="section-description">{{ t('settings.themeHelp') }}</p>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <label
+            v-for="option in themeOptions"
+            :key="option.value"
+            class="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-700"
+          >
+            <input
+              type="radio"
+              name="theme"
+              class="form-radio text-primary-600 focus:ring-primary-500"
+              :value="option.value"
+              :checked="settings.theme === option.value"
+              @change="userStore.setTheme(option.value)"
+            />
+            <span>{{ t(option.labelKey) }}</span>
+          </label>
+        </div>
+      </section>
+
       <!-- General -->
       <section class="settings-section">
         <h3 class="section-title">{{ t('settings.general') }}</h3>
@@ -154,8 +177,9 @@
       <section class="settings-section">
         <h3 class="section-title">{{ t('settings.aboutTitle') }}</h3>
         <div class="about-info">
-          <p class="mb-1">{{ t('settings.version') }} 0.1.0</p>
-          <p>© 2026 Clousight</p>
+          <p class="mb-1 font-semibold">{{ t('settings.aboutBrand') }}</p>
+          <p class="mb-1">{{ t('settings.version') }} {{ version }}</p>
+          <p>{{ t('settings.officialDataNote') }}</p>
           <p class="mt-1 text-xs text-slate-500">{{ t('settings.privacyNote') }}</p>
         </div>
       </section>
@@ -181,9 +205,17 @@ import type { LocalePreference } from '@/utils/detectLocale';
 import { getLlmConfig, saveLlmConfig, DEFAULT_LLM_CONFIG, type LlmConfig } from '@/services/llm';
 import { PROVIDERS, getProvider } from '@/services/providers/registry';
 import { requestProviderOrigin, removeProviderOrigin } from '@/services/permissions';
+import type { ThemePreference } from '@/utils/themeBootstrap';
+import { getExtensionVersion } from '@/utils/extensionMeta';
 
 const { t } = useI18n();
 const userStore = useUserStore();
+const version = getExtensionVersion();
+const themeOptions: Array<{ value: ThemePreference; labelKey: string }> = [
+  { value: 'light', labelKey: 'settings.themeLight' },
+  { value: 'dark', labelKey: 'settings.themeDark' },
+  { value: 'system', labelKey: 'settings.themeSystem' }
+];
 
 const loading = ref(true);
 const saving = ref(false);
@@ -228,14 +260,7 @@ const localeChoice = computed({
 // Native language names (language names are conventionally not translated).
 const localeOptions = [
   { code: 'en', label: 'English' },
-  { code: 'zh-CN', label: '简体中文' },
-  { code: 'zh-Hant', label: '繁體中文' },
-  { code: 'de', label: 'Deutsch' },
-  { code: 'es', label: 'Español' },
-  { code: 'fr', label: 'Français' },
-  { code: 'ja', label: '日本語' },
-  { code: 'ko', label: '한국어' },
-  { code: 'pt-BR', label: 'Português (Brasil)' }
+  { code: 'zh-CN', label: '简体中文' }
 ];
 
 onMounted(async () => {

@@ -95,6 +95,35 @@ describe('PopupApp', () => {
     expect(wrapper.text()).toContain('No provider status is available yet.');
   });
 
+  it('uses singular grammar when exactly one provider needs attention', () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const store = useStatusStore();
+    store.services = [service('AWS', 'operational'), service('GCP', 'outage')];
+    vi.spyOn(store, 'fetchStatus').mockResolvedValue();
+
+    const wrapper = mount(PopupApp, {
+      global: { plugins: [pinia, i18n] }
+    });
+
+    expect(wrapper.text()).toContain('1 provider needs attention');
+    expect(wrapper.text()).not.toContain('1 providers need attention');
+  });
+
+  it('uses plural grammar when more than one provider needs attention', () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const store = useStatusStore();
+    store.services = [service('AWS', 'outage'), service('GCP', 'degraded')];
+    vi.spyOn(store, 'fetchStatus').mockResolvedValue();
+
+    const wrapper = mount(PopupApp, {
+      global: { plugins: [pinia, i18n] }
+    });
+
+    expect(wrapper.text()).toContain('2 providers need attention');
+  });
+
   it('caps the preferred popup width to the viewport using border-box sizing', () => {
     const { wrapper } = setup();
 

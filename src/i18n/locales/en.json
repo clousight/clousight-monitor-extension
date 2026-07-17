@@ -78,7 +78,13 @@
     "emptyFilters": "No services found matching your filters",
     "statusUnavailable": "Status data could not be loaded. If you are offline or the API is down, try again later or confirm the API URL under Settings.",
     "serviceStatus": "Service Status",
-    "servicesCount": "{count} services"
+    "servicesCount": "{count} services",
+    "desc": {
+      "operational": "Providers running normally",
+      "degraded": "Providers with performance issues",
+      "outage": "Providers experiencing downtime",
+      "maintenance": "Providers in planned maintenance"
+    }
   },
   "providers": {
     "title": "Cloud Providers",
@@ -214,6 +220,7 @@
     "overallStatus": "Overall status",
     "healthyCount": "{healthy} of {total} providers operational",
     "allOperational": "All monitored providers are operational",
+    "affectedCountSingular": "{count} provider needs attention",
     "affectedCount": "{count} providers need attention",
     "loading": "Checking official status sources…",
     "empty": "No provider status is available yet.",

@@ -129,11 +129,12 @@ const providerSummaries = computed(() => deriveProviderSummaries(statusStore.ser
 const overallHealth = computed(() => deriveOverallHealth(providerSummaries.value));
 const version = getExtensionVersion();
 const hasRows = computed(() => providerSummaries.value.length > 0);
-const issueSummary = computed(() =>
-  overallHealth.value.affected === 0
-    ? t('popup.allOperational')
-    : t('popup.affectedCount', { count: overallHealth.value.affected })
-);
+const issueSummary = computed(() => {
+  const affected = overallHealth.value.affected;
+  if (affected === 0) return t('popup.allOperational');
+  const key = affected === 1 ? 'popup.affectedCountSingular' : 'popup.affectedCount';
+  return t(key, { count: affected });
+});
 
 async function refresh() {
   await statusStore.refreshStatus();

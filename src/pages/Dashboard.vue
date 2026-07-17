@@ -18,25 +18,25 @@
         <div class="stat-card">
           <div class="stat-title">{{ t('common.operational') }}</div>
           <div class="stat-value status-operational">{{ overallHealth.operational }}</div>
-          <div class="stat-desc">{{ t('status.desc.operational') }}</div>
+          <div class="stat-desc">{{ t('dashboard.desc.operational') }}</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-title">{{ t('common.degraded') }}</div>
           <div class="stat-value status-degraded">{{ overallHealth.degraded }}</div>
-          <div class="stat-desc">{{ t('status.desc.degraded') }}</div>
+          <div class="stat-desc">{{ t('dashboard.desc.degraded') }}</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-title">{{ t('common.outage') }}</div>
           <div class="stat-value status-outage">{{ overallHealth.outage }}</div>
-          <div class="stat-desc">{{ t('status.desc.outage') }}</div>
+          <div class="stat-desc">{{ t('dashboard.desc.outage') }}</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-title">{{ t('common.maintenance') }}</div>
           <div class="stat-value status-maintenance">{{ overallHealth.maintenance }}</div>
-          <div class="stat-desc">{{ t('status.desc.maintenance') }}</div>
+          <div class="stat-desc">{{ t('dashboard.desc.maintenance') }}</div>
         </div>
       </div>
 

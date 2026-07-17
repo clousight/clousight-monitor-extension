@@ -78,7 +78,13 @@
     "emptyFilters": "没有符合筛选条件的服务",
     "statusUnavailable": "暂时无法加载状态数据。若离线或 API 不可用，请稍后重试，或在设置中检查 API 地址。",
     "serviceStatus": "服务状态",
-    "servicesCount": "{count} 个服务"
+    "servicesCount": "{count} 个服务",
+    "desc": {
+      "operational": "云厂商运行正常",
+      "degraded": "云厂商存在性能问题",
+      "outage": "云厂商出现故障",
+      "maintenance": "云厂商计划性维护中"
+    }
   },
   "providers": {
     "title": "云厂商",
@@ -214,6 +220,7 @@
     "overallStatus": "整体运行状态",
     "healthyCount": "{healthy}/{total} 家云服务商正常",
     "allOperational": "当前监控的云服务商均正常",
+    "affectedCountSingular": "{count} 家云服务商需要关注",
     "affectedCount": "{count} 家云服务商需要关注",
     "loading": "正在检查官方状态源…",
     "empty": "暂未取得云服务商状态。",

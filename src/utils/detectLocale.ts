@@ -3,17 +3,7 @@
  * closest supported locale, falling back to English.
  */
 
-export const SUPPORTED_LOCALES = [
-  'en',
-  'zh-CN',
-  'zh-Hant',
-  'de',
-  'es',
-  'fr',
-  'ja',
-  'ko',
-  'pt-BR'
-] as const;
+export const SUPPORTED_LOCALES = ['en', 'zh-CN'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export type LocalePreference = 'auto' | SupportedLocale;
@@ -22,31 +12,10 @@ export type LocalePreference = 'auto' | SupportedLocale;
 function normalizeTagToLocale(tag: string): SupportedLocale | null {
   const lower = tag.toLowerCase().replace(/_/g, '-');
   if (lower.startsWith('zh')) {
-    if (/hant|tw|hk|mo/.test(lower)) {
-      return 'zh-Hant';
-    }
     return 'zh-CN';
   }
   if (lower.startsWith('en')) {
     return 'en';
-  }
-  if (lower.startsWith('de')) {
-    return 'de';
-  }
-  if (lower.startsWith('es')) {
-    return 'es';
-  }
-  if (lower.startsWith('fr')) {
-    return 'fr';
-  }
-  if (lower.startsWith('ja')) {
-    return 'ja';
-  }
-  if (lower.startsWith('ko')) {
-    return 'ko';
-  }
-  if (lower.startsWith('pt')) {
-    return 'pt-BR';
   }
   return null;
 }

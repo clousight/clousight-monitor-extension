@@ -7,25 +7,25 @@ import {
 
 describe('detectLocale', () => {
   it('resolves supported locales explicitly', () => {
+    expect(resolveLocalePreference('en')).toBe('en');
     expect(resolveLocalePreference('zh-CN')).toBe('zh-CN');
-    expect(resolveLocalePreference('ja')).toBe('ja');
-    expect(resolveLocalePreference('pt-BR')).toBe('pt-BR');
   });
 
   it('maps browser region tags to the closest supported locale', () => {
-    expect(migrateLegacyLocaleCode('ja-JP')).toBe('ja');
-    expect(migrateLegacyLocaleCode('pt-PT')).toBe('pt-BR');
-    expect(migrateLegacyLocaleCode('de-AT')).toBe('de');
+    expect(migrateLegacyLocaleCode('en-US')).toBe('en');
+    expect(migrateLegacyLocaleCode('en-GB')).toBe('en');
   });
 
-  it('distinguishes Traditional from Simplified Chinese', () => {
-    expect(migrateLegacyLocaleCode('zh-TW')).toBe('zh-Hant');
-    expect(migrateLegacyLocaleCode('zh-HK')).toBe('zh-Hant');
+  it('collapses all Chinese variants to Simplified Chinese', () => {
     expect(migrateLegacyLocaleCode('zh-CN')).toBe('zh-CN');
     expect(migrateLegacyLocaleCode('zh')).toBe('zh-CN');
+    expect(migrateLegacyLocaleCode('zh-TW')).toBe('zh-CN');
+    expect(migrateLegacyLocaleCode('zh-HK')).toBe('zh-CN');
   });
 
-  it('falls back to en for unknown tags', () => {
+  it('falls back to en for unsupported languages and unknown tags', () => {
+    expect(migrateLegacyLocaleCode('ja-JP')).toBe('en');
+    expect(migrateLegacyLocaleCode('de-AT')).toBe('en');
     expect(migrateLegacyLocaleCode('xx-YY')).toBe('en');
   });
 

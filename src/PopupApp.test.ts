@@ -55,7 +55,7 @@ describe('PopupApp', () => {
     const pinia = createPinia();
     setActivePinia(pinia);
     const store = useStatusStore();
-    store.services = [service('AWS', 'operational'), service('CLOUDFLARE', 'degraded')];
+    store.services = [service('AWS', 'operational'), service('GCP', 'degraded')];
     vi.spyOn(store, 'fetchStatus').mockResolvedValue();
 
     const wrapper = mount(PopupApp, {
@@ -65,7 +65,7 @@ describe('PopupApp', () => {
     expect(wrapper.text()).toContain('Clousight');
     expect(wrapper.text()).toContain('1 of 2 providers operational');
     expect(wrapper.text()).toContain('Amazon Web Services');
-    expect(wrapper.text()).toContain('Cloudflare');
+    expect(wrapper.text()).toContain('Google Cloud');
     expect(wrapper.text()).toContain('Operational');
     expect(wrapper.text()).toContain('Degraded');
     expect(wrapper.text()).toContain('Data from providers’ official status sources');

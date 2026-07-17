@@ -1,12 +1,14 @@
 <template>
   <div class="app-container" :class="{ dark: isDarkMode }">
     <div class="app-layout">
-      <aside class="sidebar">
-        <header class="sidebar-header mobile-top-header">
-          <AppBrand compact class="sidebar-brand" />
+      <aside
+        class="sidebar h-full w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-700 max-[768px]:fixed max-[768px]:inset-x-0 max-[768px]:top-0 max-[768px]:h-16 max-[768px]:w-full max-[768px]:border-r-0"
+      >
+        <header class="sidebar-header mobile-top-header max-[768px]:w-full">
+          <AppBrand compact class="sidebar-brand max-[768px]:min-w-0 max-[768px]:flex-1" />
           <button
             type="button"
-            class="mobile-toggle min-h-[44px] min-w-[44px]"
+            class="mobile-toggle hidden min-h-[44px] min-w-[44px] max-[768px]:flex max-[768px]:shrink-0"
             :aria-expanded="sidebarOpen"
             aria-controls="sidebar-nav-panel"
             :aria-label="sidebarOpen ? t('nav.closeMenu') : t('nav.openMenu')"
@@ -18,14 +20,19 @@
 
         <div
           id="sidebar-nav-panel"
-          class="sidebar-content mobile-drawer"
-          :class="{ 'sidebar-open': sidebarOpen }"
+          class="sidebar-content mobile-drawer max-[768px]:fixed max-[768px]:top-16 max-[768px]:bottom-0 max-[768px]:left-0 max-[768px]:w-64 max-[768px]:border-r max-[768px]:border-slate-200 max-[768px]:bg-white max-[768px]:shadow-xl max-[768px]:transform max-[768px]:-translate-x-full max-[768px]:transition-transform max-[768px]:duration-200 max-[768px]:ease-out motion-reduce:max-[768px]:transition-none dark:max-[768px]:border-slate-700 dark:max-[768px]:bg-slate-800"
+          :class="{
+            'sidebar-open': sidebarOpen,
+            'max-[768px]:translate-x-0': sidebarOpen
+          }"
         >
           <AppNavigation />
         </div>
       </aside>
 
-      <main class="main-content mobile-main-content">
+      <main
+        class="main-content mobile-main-content p-6 max-[768px]:px-4 max-[768px]:pb-4 max-[768px]:pt-20"
+      >
         <div class="content-container">
           <slot></slot>
         </div>
@@ -104,11 +111,11 @@ onBeforeUnmount(() => {
 }
 
 .sidebar {
-  @apply w-64 flex-shrink-0 h-full bg-white border-r border-slate-200 flex flex-col z-20;
+  @apply bg-white flex flex-col z-20;
 }
 
 .app-container.dark .sidebar {
-  @apply bg-slate-800 border-slate-700;
+  @apply bg-slate-800;
 }
 
 .sidebar-header {
@@ -120,7 +127,7 @@ onBeforeUnmount(() => {
 }
 
 .mobile-toggle {
-  @apply hidden items-center justify-center p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800;
+  @apply items-center justify-center p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800;
 }
 
 .sidebar-content {
@@ -128,7 +135,7 @@ onBeforeUnmount(() => {
 }
 
 .main-content {
-  @apply flex-1 overflow-y-auto bg-slate-50 p-6;
+  @apply flex-1 overflow-y-auto bg-slate-50;
 }
 
 .app-container.dark .main-content {
@@ -137,40 +144,5 @@ onBeforeUnmount(() => {
 
 .content-container {
   @apply max-w-7xl mx-auto;
-}
-
-/* Mobile Styles */
-@media (max-width: 768px) {
-  .sidebar {
-    @apply fixed inset-x-0 top-0 h-16 w-full;
-  }
-
-  .sidebar-header {
-    @apply w-full;
-  }
-
-  .sidebar-brand {
-    @apply min-w-0 flex-1;
-  }
-
-  .mobile-toggle {
-    @apply flex shrink-0;
-  }
-
-  .sidebar-content {
-    @apply fixed top-16 bottom-0 left-0 w-64 border-r border-slate-200 bg-white shadow-xl transform -translate-x-full transition-transform duration-200 ease-out motion-reduce:transition-none;
-  }
-
-  .app-container.dark .sidebar-content {
-    @apply border-slate-700 bg-slate-800;
-  }
-
-  .sidebar-content.sidebar-open {
-    @apply translate-x-0;
-  }
-
-  .main-content {
-    @apply px-4 pb-4 pt-20;
-  }
 }
 </style>

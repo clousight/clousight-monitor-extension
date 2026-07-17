@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-    <div class="app-layout">
+    <div class="app-layout flex h-screen overflow-hidden">
       <aside
-        class="sidebar w-64 max-[768px]:fixed max-[768px]:inset-x-0 max-[768px]:top-0 max-[768px]:h-16 max-[768px]:w-full max-[768px]:border-r-0"
+        class="sidebar z-20 flex h-full w-64 flex-shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 max-[768px]:fixed max-[768px]:inset-x-0 max-[768px]:top-0 max-[768px]:h-16 max-[768px]:w-full max-[768px]:border-r-0"
       >
         <header class="sidebar-header mobile-top-header max-[768px]:w-full">
           <AppBrand compact class="sidebar-brand max-[768px]:min-w-0 max-[768px]:flex-1" />
@@ -31,7 +31,7 @@
       </aside>
 
       <main
-        class="main-content mobile-main-content max-[768px]:px-4 max-[768px]:pb-4 max-[768px]:pt-20"
+        class="main-content mobile-main-content flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-6 dark:bg-slate-950 max-[768px]:px-4 max-[768px]:pb-4 max-[768px]:pt-20"
       >
         <div class="content-container">
           <slot></slot>
@@ -93,14 +93,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.app-layout {
-  @apply flex h-screen overflow-hidden;
-}
-
-.sidebar {
-  @apply z-20 flex h-full w-64 flex-shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900;
-}
-
 .sidebar-header {
   @apply flex h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-800;
 }
@@ -111,10 +103,6 @@ onBeforeUnmount(() => {
 
 .sidebar-content {
   @apply flex-1 overflow-y-auto bg-white dark:bg-slate-900;
-}
-
-.main-content {
-  @apply flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-6 dark:bg-slate-950;
 }
 
 .content-container {

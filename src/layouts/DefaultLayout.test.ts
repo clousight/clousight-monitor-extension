@@ -3,6 +3,7 @@ import { createI18n } from 'vue-i18n';
 import { describe, expect, it, vi } from 'vitest';
 import { cspMessageCompiler } from '@/i18n/messageCompiler';
 import DefaultLayout from './DefaultLayout.vue';
+import layoutSource from './DefaultLayout.vue?raw';
 
 vi.mock('@/stores/userStore', () => ({
   useUserStore: () => ({
@@ -58,7 +59,14 @@ describe('DefaultLayout mobile navigation', () => {
 
     expect(sidebar.classes()).toEqual(
       expect.arrayContaining([
+        'h-full',
         'w-64',
+        'flex-shrink-0',
+        'border-r',
+        'border-slate-200',
+        'bg-white',
+        'dark:border-slate-800',
+        'dark:bg-slate-900',
         'max-[768px]:fixed',
         'max-[768px]:inset-x-0',
         'max-[768px]:top-0',
@@ -93,7 +101,30 @@ describe('DefaultLayout mobile navigation', () => {
     );
     expect(header.element.nextElementSibling).toBe(drawer.element);
     expect(main.classes()).toEqual(
-      expect.arrayContaining(['max-[768px]:px-4', 'max-[768px]:pb-4', 'max-[768px]:pt-20'])
+      expect.arrayContaining([
+        'flex-1',
+        'overflow-y-auto',
+        'bg-slate-50',
+        'p-4',
+        'sm:p-6',
+        'dark:bg-slate-950',
+        'max-[768px]:px-4',
+        'max-[768px]:pb-4',
+        'max-[768px]:pt-20'
+      ])
+    );
+  });
+
+  it('keeps responsive sidebar and content geometry out of scoped styles', () => {
+    const scopedStyles = layoutSource.match(/<style scoped>([\s\S]*?)<\/style>/)?.[1] ?? '';
+    const sidebarStyles = scopedStyles.match(/\.sidebar\s*\{([^}]*)\}/s)?.[1] ?? '';
+    const mainContentStyles = scopedStyles.match(/\.main-content\s*\{([^}]*)\}/s)?.[1] ?? '';
+
+    expect(sidebarStyles).not.toMatch(
+      /\b(?:h|w|min-h|max-h|min-w|max-w)-\S+|\bborder(?:-[trblxy])?(?:-\S+)?/
+    );
+    expect(mainContentStyles).not.toMatch(
+      /\b(?:[a-z0-9-[\]]+:)*(?:p|px|py|pt|pr|pb|pl)-\S+/
     );
   });
 });

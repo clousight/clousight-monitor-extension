@@ -3,10 +3,7 @@
     <div class="app-layout">
       <aside class="sidebar">
         <div class="sidebar-header">
-          <div class="app-logo">
-            <img src="/images/logo.svg" :alt="t('app.brand')" class="logo-image" />
-            <span class="logo-text">{{ t('app.brand') }}</span>
-          </div>
+          <AppBrand compact class="sidebar-brand" />
           <button
             type="button"
             class="mobile-toggle"
@@ -43,6 +40,7 @@ import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/stores/userStore';
 import AppNavigation from '@/components/AppNavigation.vue';
 import AppIcon from '@/components/AppIcon.vue';
+import AppBrand from '@/components/AppBrand.vue';
 
 const { t } = useI18n();
 
@@ -121,22 +119,6 @@ onBeforeUnmount(() => {
   @apply border-slate-700;
 }
 
-.app-logo {
-  @apply flex items-center;
-}
-
-.logo-image {
-  @apply w-8 h-8 mr-2;
-}
-
-.logo-text {
-  @apply font-semibold text-lg text-primary-600;
-}
-
-.app-container.dark .logo-text {
-  @apply text-primary-400;
-}
-
 .mobile-toggle {
   @apply hidden min-h-[44px] min-w-[44px] items-center justify-center p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800;
 }
@@ -163,7 +145,7 @@ onBeforeUnmount(() => {
     @apply w-16;
   }
 
-  .logo-text {
+  .sidebar-brand :deep([data-brand-text]) {
     @apply hidden;
   }
 

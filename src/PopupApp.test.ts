@@ -99,17 +99,24 @@ describe('PopupApp', () => {
     const pinia = createPinia();
     setActivePinia(pinia);
     const store = useStatusStore();
-    store.error = 'Official status sources are unavailable';
+    const longError = `https://status.example.invalid/${'runtime-token'.repeat(24)}`;
+    store.error = longError;
     vi.spyOn(store, 'fetchStatus').mockResolvedValue();
     const refresh = vi.spyOn(store, 'refreshStatus').mockResolvedValue();
     const wrapper = mount(PopupApp, {
       global: { plugins: [pinia, i18n] }
     });
 
-    expect(wrapper.text()).toContain('Official status sources are unavailable');
+    const error = wrapper.get('[data-testid="popup-fatal-error"]');
+    expect(error.text()).toContain(longError);
+    expect(error.classes()).toEqual(
+      expect.arrayContaining(['min-w-0', 'overflow-hidden', 'break-words'])
+    );
     expect(wrapper.text()).toContain('Try again');
 
-    await wrapper.get('button[data-testid="popup-retry"]').trigger('click');
+    const retry = wrapper.get('button[data-testid="popup-retry"]');
+    expect(retry.classes()).toContain('min-w-[44px]');
+    await retry.trigger('click');
     expect(refresh).toHaveBeenCalledOnce();
   });
 
@@ -118,14 +125,19 @@ describe('PopupApp', () => {
     setActivePinia(pinia);
     const store = useStatusStore();
     store.services = [service('AWS', 'operational')];
-    store.error = 'Refresh failed; showing retained data';
+    const longError = `runtime://${'unbroken-token'.repeat(24)}`;
+    store.error = longError;
     vi.spyOn(store, 'fetchStatus').mockResolvedValue();
     const wrapper = mount(PopupApp, {
       global: { plugins: [pinia, i18n] }
     });
 
+    const warning = wrapper.get('[data-testid="popup-retained-warning"]');
     expect(wrapper.text()).toContain('Amazon Web Services');
-    expect(wrapper.text()).toContain('Refresh failed; showing retained data');
+    expect(warning.text()).toContain(longError);
+    expect(warning.classes()).toEqual(
+      expect.arrayContaining(['min-w-0', 'overflow-hidden', 'break-words'])
+    );
     expect(wrapper.text()).not.toContain('Try again');
   });
 
@@ -133,7 +145,9 @@ describe('PopupApp', () => {
     const { wrapper } = setup();
 
     await wrapper.get('button[data-testid="popup-dashboard"]').trigger('click');
-    await wrapper.get('button[data-testid="popup-settings"]').trigger('click');
+    const settings = wrapper.get('button[data-testid="popup-settings"]');
+    expect(settings.classes()).toContain('min-w-[44px]');
+    await settings.trigger('click');
 
     expect(chrome.tabs.create).toHaveBeenCalledWith({ url: 'index.html' });
     expect(chrome.runtime.openOptionsPage).toHaveBeenCalledOnce();

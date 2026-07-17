@@ -52,13 +52,14 @@
     </p>
     <div
       v-else-if="statusStore.error && !hasRows"
-      class="rounded-lg border border-warning-200 bg-warning-50 p-4 text-sm text-warning-800 dark:border-warning-800 dark:bg-warning-900/30 dark:text-warning-200"
+      data-testid="popup-fatal-error"
+      class="min-w-0 overflow-hidden break-words rounded-lg border border-warning-200 bg-warning-50 p-4 text-sm text-warning-800 dark:border-warning-800 dark:bg-warning-900/30 dark:text-warning-200"
     >
       <p>{{ statusStore.error }}</p>
       <button
         type="button"
         data-testid="popup-retry"
-        class="mt-2 min-h-[44px] font-semibold underline"
+        class="mt-2 min-h-[44px] min-w-[44px] px-1 font-semibold underline"
         @click="refresh"
       >
         {{ t('popup.retry') }}
@@ -83,7 +84,8 @@
 
     <p
       v-if="statusStore.error && hasRows"
-      class="mt-3 rounded-lg bg-warning-50 px-3 py-2 text-xs text-warning-800 dark:bg-warning-900/30 dark:text-warning-200"
+      data-testid="popup-retained-warning"
+      class="mt-3 min-w-0 overflow-hidden break-words rounded-lg bg-warning-50 px-3 py-2 text-xs text-warning-800 dark:bg-warning-900/30 dark:text-warning-200"
     >
       {{ statusStore.error }}
     </p>
@@ -96,7 +98,7 @@
       <button
         type="button"
         data-testid="popup-settings"
-        class="min-h-[44px] rounded-md px-1 text-xs text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-300"
+        class="min-h-[44px] min-w-[44px] rounded-md px-1 text-xs text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-300"
         @click="openOptions"
       >
         {{ t('popup.settings') }}

@@ -15,9 +15,13 @@
 import type { MessageCompiler, MessageContext, MessageFunction } from 'vue-i18n';
 
 type Token = { text: string } | { named: string } | { list: number };
+type RuntimeMessageContext = MessageContext<unknown> & {
+  interpolate(value: unknown): unknown;
+  normalize(values: unknown[]): unknown;
+};
 
 const PLACEHOLDER = /\{(\w+)\}/g;
-const cache = new Map<string, MessageFunction<string>>();
+const cache = new Map<string, MessageFunction>();
 
 function tokenize(source: string): Token[] {
   const tokens: Token[] = [];
@@ -38,23 +42,18 @@ function tokenize(source: string): Token[] {
   return tokens;
 }
 
-function toMessageFunction(source: string): MessageFunction<string> {
+function toMessageFunction(source: string): MessageFunction {
   const tokens = tokenize(source);
-  return (ctx: MessageContext<string>): string => {
-    let out = '';
-    for (const token of tokens) {
-      if ('text' in token) {
-        out += token.text;
-      } else if ('named' in token) {
-        const value = ctx.named(token.named);
-        out += value == null ? '' : String(value);
-      } else {
-        const value = ctx.list(token.list);
-        out += value == null ? '' : String(value);
-      }
-    }
-    return out;
-  };
+  return ((ctx: RuntimeMessageContext) =>
+    ctx.normalize(
+      tokens.map(token => {
+        if ('text' in token) {
+          return token.text;
+        }
+        const value = 'named' in token ? ctx.named(token.named) : ctx.list(token.list);
+        return ctx.interpolate(value);
+      })
+    )) as MessageFunction;
 }
 
 export const cspMessageCompiler: MessageCompiler = (message, { key }) => {

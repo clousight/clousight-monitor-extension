@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { mount } from '@vue/test-utils';
+import { defineComponent } from 'vue';
 import { createI18n } from 'vue-i18n';
+import { describe, expect, it, vi } from 'vitest';
 import { cspMessageCompiler } from './messageCompiler';
 
 /**
@@ -17,7 +19,8 @@ describe('cspMessageCompiler', () => {
         plain: 'All systems operational',
         named: 'Watching {name}',
         multi: '{count} of {max} rules used',
-        list: 'hello {0} and {1}'
+        list: 'hello {0} and {1}',
+        withLink: 'Manage alerts in {settings}.'
       }
     }
   });
@@ -41,5 +44,30 @@ describe('cspMessageCompiler', () => {
 
   it('renders a missing named value as empty, not the token', () => {
     expect(t('named', {})).toBe('Watching ');
+  });
+
+  it('preserves a named i18n-t link VNode and its click behavior', async () => {
+    const onSettingsClick = vi.fn();
+    const wrapper = mount(
+      defineComponent({
+        setup: () => ({ onSettingsClick }),
+        template: `
+          <i18n-t keypath="withLink" tag="p">
+            <template #settings>
+              <a href="/settings" @click.prevent="onSettingsClick">Settings</a>
+            </template>
+          </i18n-t>
+        `
+      }),
+      { global: { plugins: [i18n] } }
+    );
+
+    const paragraph = wrapper.get('p');
+    const link = paragraph.get('a[href="/settings"]');
+    expect(paragraph.text()).toBe('Manage alerts in Settings.');
+    expect(link.text()).toBe('Settings');
+
+    await link.trigger('click');
+    expect(onSettingsClick).toHaveBeenCalledOnce();
   });
 });

@@ -74,6 +74,7 @@ describe('status pages', () => {
     const { pinia } = setup([
       service('AWS', 'operational', 'EC2', 'us-east-1'),
       service('AWS', 'operational', 'S3', 'us-west-2'),
+      service('AWS', 'degraded', 'RDS', 'us-east-1'),
       service('GCP', 'outage', 'Compute Engine')
     ]);
     const wrapper = mount(Providers, { global: globalOptions(pinia) });
@@ -83,7 +84,12 @@ describe('status pages', () => {
     expect(cards[0].get('.provider-name').text()).toBe('Google Cloud');
     expect(cards[0].get('[role="status"]').text()).toBe('Outage');
     expect(cards[1].get('.provider-name').text()).toBe('Amazon Web Services');
-    expect(cards[1].text()).toContain('2');
+    expect(cards[1].get('[data-testid="provider-total"]').text()).toBe('3');
+    expect(cards[1].get('[data-testid="provider-regions"]').text()).toBe('2');
+    expect(cards[1].get('[data-testid="provider-count-operational"]').text()).toBe('2');
+    expect(cards[1].get('[data-testid="provider-count-degraded"]').text()).toBe('1');
+    expect(cards[1].get('[data-testid="provider-count-outage"]').text()).toBe('0');
+    expect(cards[1].get('[data-testid="provider-count-maintenance"]').text()).toBe('0');
     expect(
       cards[1].get('a[href="https://health.aws.amazon.com/health/status"]').attributes('href')
     ).toBe('https://health.aws.amazon.com/health/status');
@@ -99,6 +105,10 @@ describe('status pages', () => {
 
     expect(wrapper.get('h1').text()).toBe('Amazon Web Services');
     expect(wrapper.findAll('[role="status"]')).toHaveLength(3);
-    expect(wrapper.text()).toContain('Degraded');
+    expect(wrapper.get('[data-testid="provider-overall-status"]').text()).toBe('Degraded');
+    expect(wrapper.findAll('tbody [role="status"]').map(badge => badge.text())).toEqual([
+      'Operational',
+      'Degraded'
+    ]);
   });
 });

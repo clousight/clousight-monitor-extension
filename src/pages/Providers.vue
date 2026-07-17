@@ -45,33 +45,41 @@
           <div class="stats-row">
             <div class="stat-item">
               <span class="stat-label">{{ t('providers.statusRows') }}</span>
-              <span class="stat-value">{{ provider.total }}</span>
+              <span class="stat-value" data-testid="provider-total">{{ provider.total }}</span>
             </div>
 
             <div class="stat-item">
               <span class="stat-label">{{ t('providers.regionsLabel') }}</span>
-              <span class="stat-value">{{ provider.regions }}</span>
+              <span class="stat-value" data-testid="provider-regions">{{ provider.regions }}</span>
             </div>
           </div>
 
           <div class="status-row">
             <div class="status-item status-operational">
-              <span class="value">{{ provider.counts.operational }}</span>
+              <span class="value" data-testid="provider-count-operational">
+                {{ provider.counts.operational }}
+              </span>
               <span class="label">{{ t('common.operational') }}</span>
             </div>
 
             <div class="status-item status-degraded">
-              <span class="value">{{ provider.counts.degraded }}</span>
+              <span class="value" data-testid="provider-count-degraded">
+                {{ provider.counts.degraded }}
+              </span>
               <span class="label">{{ t('common.degraded') }}</span>
             </div>
 
             <div class="status-item status-outage">
-              <span class="value">{{ provider.counts.outage }}</span>
+              <span class="value" data-testid="provider-count-outage">
+                {{ provider.counts.outage }}
+              </span>
               <span class="label">{{ t('common.outage') }}</span>
             </div>
 
             <div class="status-item status-maintenance">
-              <span class="value">{{ provider.counts.maintenance }}</span>
+              <span class="value" data-testid="provider-count-maintenance">
+                {{ provider.counts.maintenance }}
+              </span>
               <span class="label">{{ t('common.maintenance') }}</span>
             </div>
           </div>

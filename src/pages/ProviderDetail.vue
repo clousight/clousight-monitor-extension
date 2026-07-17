@@ -42,7 +42,7 @@
       <div class="status-summary-section">
         <div class="overall-status">
           <div class="status-label">{{ t('providerDetail.overallStatus') }}</div>
-          <StatusBadge :status="overallStatus" />
+          <StatusBadge :status="overallStatus" data-testid="provider-overall-status" />
         </div>
 
         <div class="stats-grid">

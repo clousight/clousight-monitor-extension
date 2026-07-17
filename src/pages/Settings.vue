@@ -22,25 +22,27 @@
 
       <!-- Appearance -->
       <section class="settings-section">
-        <h3 class="section-title">{{ t('settings.themeSection') }}</h3>
-        <p class="section-description">{{ t('settings.themeHelp') }}</p>
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <label
-            v-for="option in themeOptions"
-            :key="option.value"
-            class="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-700"
-          >
-            <input
-              type="radio"
-              name="theme"
-              class="form-radio text-primary-600 focus:ring-primary-500"
-              :value="option.value"
-              :checked="settings.theme === option.value"
-              @change="userStore.setTheme(option.value)"
-            />
-            <span>{{ t(option.labelKey) }}</span>
-          </label>
-        </div>
+        <fieldset>
+          <legend class="section-title">{{ t('settings.themeSection') }}</legend>
+          <p class="section-description">{{ t('settings.themeHelp') }}</p>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <label
+              v-for="option in themeOptions"
+              :key="option.value"
+              class="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-700"
+            >
+              <input
+                type="radio"
+                name="theme"
+                class="form-radio text-primary-600 focus:ring-primary-500"
+                :value="option.value"
+                :checked="settings.theme === option.value"
+                @change="userStore.setTheme(option.value)"
+              />
+              <span>{{ t(option.labelKey) }}</span>
+            </label>
+          </div>
+        </fieldset>
       </section>
 
       <!-- General -->

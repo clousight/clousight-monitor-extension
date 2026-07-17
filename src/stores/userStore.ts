@@ -8,11 +8,7 @@ import { setGlobalLocale } from '@/i18n';
 import type { LocalePreference } from '@/utils/detectLocale';
 import { migrateLegacyLocaleCode, SUPPORTED_LOCALES } from '@/utils/detectLocale';
 import { VERIFIED_PROVIDERS } from '@/services/providers/registry';
-import {
-  applyThemeClass,
-  resolveTheme,
-  type ThemePreference
-} from '@/utils/themeBootstrap';
+import { applyThemeClass, resolveTheme, type ThemePreference } from '@/utils/themeBootstrap';
 
 interface UserSettings {
   /** UI language: auto follows Chrome UI / browser language. */
@@ -48,6 +44,13 @@ interface UserState {
   settings: UserSettings;
 }
 
+// Module-level (not per-store-instance) on purpose: each extension surface
+// (popup, options page, dashboard tab) loads this module fresh in its own
+// document/JS realm, so there is only ever one store — and one listener —
+// per module lifetime. This assumption breaks only if the app starts creating
+// multiple Pinia app instances within a single page; if that ever happens,
+// move this into `startSystemThemeSync`/`stopSystemThemeSync` state instead
+// of sharing it across instances.
 const systemThemeMedia =
   typeof matchMedia === 'undefined' ? null : matchMedia('(prefers-color-scheme: dark)');
 let systemThemeChangeListener: (() => void) | null = null;

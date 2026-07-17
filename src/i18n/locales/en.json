@@ -199,12 +199,20 @@
     "experimental": "Experimental"
   },
   "popup": {
-    "tagline": "Multi-cloud health",
-    "dashboard": "Dashboard",
-    "refresh": "Refresh",
+    "tagline": "Multi-cloud service health",
+    "dashboard": "Open dashboard",
+    "refresh": "Refresh status",
     "refreshing": "Refreshing…",
     "settings": "Settings",
-    "versionNote": "v0.1 · local mock data"
+    "overallStatus": "Overall status",
+    "healthyCount": "{healthy} of {total} providers operational",
+    "allOperational": "All monitored providers are operational",
+    "affectedCount": "{count} providers need attention",
+    "loading": "Checking official status sources…",
+    "empty": "No provider status is available yet.",
+    "retry": "Try again",
+    "dataSource": "Data from providers’ official status sources",
+    "version": "v{version}"
   },
   "routes": {
     "dashboard": "Dashboard",

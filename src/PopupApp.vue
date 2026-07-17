@@ -1,27 +1,42 @@
 <template>
-  <div class="w-[360px] border border-slate-800 bg-slate-950 p-3 ring-1 ring-slate-700/80">
-    <header class="mb-3 flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <img class="h-8 w-8 rounded" :src="iconUrl" alt="" />
-        <div>
-          <h1 class="text-sm font-semibold text-white">{{ t('app.brand') }}</h1>
-          <p class="text-xs text-slate-400">{{ t('popup.tagline') }}</p>
-        </div>
-      </div>
+  <div
+    class="w-[360px] border border-slate-200 bg-slate-50 p-4 text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+  >
+    <header class="mb-4 flex items-center justify-between gap-3">
+      <AppBrand compact :subtitle="t('popup.tagline')" />
       <button
         type="button"
-        class="rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 transition-colors duration-200"
+        data-testid="popup-dashboard"
+        class="min-h-[44px] rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-primary-700 transition-colors duration-200 hover:bg-primary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-primary-300 dark:hover:bg-slate-800"
         @click="openDashboard"
       >
         {{ t('popup.dashboard') }}
       </button>
     </header>
 
+    <section
+      class="mb-4 rounded-xl bg-gradient-to-br from-primary-800 to-primary-600 p-4 text-white"
+      :aria-label="t('popup.overallStatus')"
+    >
+      <p class="text-xs text-primary-100">{{ t('popup.overallStatus') }}</p>
+      <p class="mt-1 text-2xl font-bold">
+        {{
+          t('popup.healthyCount', {
+            healthy: overallHealth.operational,
+            total: overallHealth.total
+          })
+        }}
+      </p>
+      <p class="mt-1 text-xs text-primary-100">{{ issueSummary }}</p>
+    </section>
+
     <div class="mb-2 flex items-center justify-between">
-      <span class="text-xs font-medium text-slate-300">{{ t('common.providers') }}</span>
+      <h2 class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+        {{ t('common.providers') }}
+      </h2>
       <button
         type="button"
-        class="text-xs text-primary-400 hover:text-primary-300 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 rounded px-0.5 transition-colors duration-200"
+        class="min-h-[44px] rounded-md px-2 text-xs font-semibold text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-50 dark:text-primary-300"
         :disabled="statusStore.loading"
         @click="refresh"
       >
@@ -29,97 +44,93 @@
       </button>
     </div>
 
-    <div
-      v-if="statusStore.error"
-      class="mb-2 rounded border border-amber-900/60 bg-amber-950/40 px-2 py-1.5 text-xs text-amber-200"
+    <p
+      v-if="statusStore.loading && !hasRows"
+      class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
     >
-      {{ statusStore.error }}
-    </div>
-
-    <ul class="max-h-64 space-y-1.5 overflow-y-auto pr-0.5">
-      <li
-        v-for="row in providerSummary"
-        :key="row.id"
-        class="flex items-center justify-between rounded-md bg-slate-900/80 px-2 py-1.5 text-xs"
+      {{ t('popup.loading') }}
+    </p>
+    <div
+      v-else-if="statusStore.error && !hasRows"
+      class="rounded-lg border border-warning-200 bg-warning-50 p-4 text-sm text-warning-800 dark:border-warning-800 dark:bg-warning-900/30 dark:text-warning-200"
+    >
+      <p>{{ statusStore.error }}</p>
+      <button
+        type="button"
+        data-testid="popup-retry"
+        class="mt-2 min-h-[44px] font-semibold underline"
+        @click="refresh"
       >
-        <span class="font-medium text-slate-200">{{ row.name }}</span>
-        <span :class="badgeClass(row.worst)">{{ t(`status.short.${row.worst}`) }}</span>
+        {{ t('popup.retry') }}
+      </button>
+    </div>
+    <p
+      v-else-if="!hasRows"
+      class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
+    >
+      {{ t('popup.empty') }}
+    </p>
+    <ul v-else class="max-h-64 space-y-2 overflow-y-auto">
+      <li
+        v-for="row in providerSummaries"
+        :key="row.id"
+        class="flex min-h-[44px] items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-800 dark:bg-slate-900"
+      >
+        <span class="truncate text-xs font-semibold">{{ row.name }}</span>
+        <StatusBadge :status="row.worst" />
       </li>
     </ul>
 
-    <p class="mt-2 text-[11px] text-slate-500">
+    <p
+      v-if="statusStore.error && hasRows"
+      class="mt-3 rounded-lg bg-warning-50 px-3 py-2 text-xs text-warning-800 dark:bg-warning-900/30 dark:text-warning-200"
+    >
+      {{ statusStore.error }}
+    </p>
+    <p class="mt-3 text-[11px] text-slate-500">
       {{ t('common.lastUpdated') }} {{ lastUpdatedText }}
     </p>
-
-    <div class="mt-3 flex items-center justify-between border-t border-slate-800 pt-2">
+    <footer
+      class="mt-3 flex items-end justify-between gap-3 border-t border-slate-200 pt-3 dark:border-slate-800"
+    >
       <button
         type="button"
-        class="text-xs text-slate-400 hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 rounded px-0.5 transition-colors duration-200"
+        data-testid="popup-settings"
+        class="min-h-[44px] rounded-md px-1 text-xs text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-300"
         @click="openOptions"
       >
         {{ t('popup.settings') }}
       </button>
-      <span class="text-[10px] text-slate-600">{{ t('popup.versionNote') }}</span>
-    </div>
+      <div class="text-right text-[10px] leading-4 text-slate-500">
+        <p>{{ t('popup.dataSource') }}</p>
+        <p>{{ t('popup.version', { version }) }}</p>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useStatusStore } from '@/stores/statusStore';
+import AppBrand from '@/components/AppBrand.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { useStatusLastUpdated } from '@/composables/useStatusLastUpdated';
-import type { StatusType } from '@/types/status';
+import { useStatusStore } from '@/stores/statusStore';
+import { getExtensionVersion } from '@/utils/extensionMeta';
+import { deriveOverallHealth, deriveProviderSummaries } from '@/utils/statusSummary';
 
 const { t } = useI18n();
 const statusStore = useStatusStore();
 const lastUpdatedText = useStatusLastUpdated();
-
-const iconUrl =
-  typeof chrome !== 'undefined' && chrome.runtime?.getURL
-    ? chrome.runtime.getURL('icons/icon48.png')
-    : '/icons/icon48.png';
-
-const providerSummary = computed(() => {
-  const map = new Map<string, { id: string; name: string; worst: StatusType }>();
-
-  const rank: Record<StatusType, number> = {
-    outage: 4,
-    degraded: 3,
-    maintenance: 2,
-    operational: 1
-  };
-
-  for (const s of statusStore.services) {
-    const id = s.provider.toLowerCase();
-    const name = s.provider;
-    const cur = map.get(id);
-    if (!cur) {
-      map.set(id, { id, name, worst: s.status });
-      continue;
-    }
-    const next = rank[s.status] ?? 0;
-    const prev = rank[cur.worst] ?? 0;
-    if (next > prev) {
-      cur.worst = s.status;
-    }
-  }
-
-  return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
-});
-
-function badgeClass(status: StatusType): string {
-  switch (status) {
-    case 'outage':
-      return 'rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-red-950 text-red-200';
-    case 'degraded':
-      return 'rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-amber-950 text-amber-200';
-    case 'maintenance':
-      return 'rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-slate-800 text-slate-200';
-    default:
-      return 'rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase bg-emerald-950 text-emerald-200';
-  }
-}
+const providerSummaries = computed(() => deriveProviderSummaries(statusStore.services));
+const overallHealth = computed(() => deriveOverallHealth(providerSummaries.value));
+const version = getExtensionVersion();
+const hasRows = computed(() => providerSummaries.value.length > 0);
+const issueSummary = computed(() =>
+  overallHealth.value.affected === 0
+    ? t('popup.allOperational')
+    : t('popup.affectedCount', { count: overallHealth.value.affected })
+);
 
 async function refresh() {
   await statusStore.refreshStatus();

@@ -199,12 +199,20 @@
     "experimental": "实验性"
   },
   "popup": {
-    "tagline": "多云健康概览",
-    "dashboard": "仪表盘",
-    "refresh": "刷新",
+    "tagline": "多云服务健康状态",
+    "dashboard": "打开仪表盘",
+    "refresh": "刷新状态",
     "refreshing": "刷新中…",
     "settings": "设置",
-    "versionNote": "v0.1 · 本地模拟数据"
+    "overallStatus": "整体运行状态",
+    "healthyCount": "{healthy}/{total} 家云服务商正常",
+    "allOperational": "当前监控的云服务商均正常",
+    "affectedCount": "{count} 家云服务商需要关注",
+    "loading": "正在检查官方状态源…",
+    "empty": "暂未取得云服务商状态。",
+    "retry": "重试",
+    "dataSource": "数据来自云厂商官方状态源",
+    "version": "v{version}"
   },
   "routes": {
     "dashboard": "概览",

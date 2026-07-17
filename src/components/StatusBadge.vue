@@ -1,8 +1,7 @@
 <template>
   <span
-    role="status"
     :aria-label="resolvedLabel"
-    class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+    class="status-badge inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
     :class="`status-${status}`"
   >
     <span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>

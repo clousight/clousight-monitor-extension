@@ -31,16 +31,22 @@ describe('StatusBadge', () => {
     ['outage', '故障'],
     ['maintenance', '维护中'],
     ['unknown', '未知']
-  ] as const)('renders %s with text and an accessible status', (status, label) => {
-    const wrapper = mount(StatusBadge, {
-      props: { status: status as StatusType | 'unknown' },
-      global: { plugins: [i18n] }
-    });
-    expect(wrapper.text()).toBe(label);
-    expect(wrapper.attributes('role')).toBe('status');
-    expect(wrapper.attributes('aria-label')).toBe(label);
-    expect(wrapper.classes()).toContain(`status-${status}`);
-  });
+  ] as const)(
+    'renders %s with text and an accessible name, without a live region',
+    (status, label) => {
+      const wrapper = mount(StatusBadge, {
+        props: { status: status as StatusType | 'unknown' },
+        global: { plugins: [i18n] }
+      });
+      expect(wrapper.text()).toBe(label);
+      // Badges render inline in tables/lists; a `role="status"` live region on
+      // every one of them would spam screen readers on each status refresh.
+      expect(wrapper.attributes('role')).toBeUndefined();
+      expect(wrapper.attributes('aria-label')).toBe(label);
+      expect(wrapper.classes()).toContain('status-badge');
+      expect(wrapper.classes()).toContain(`status-${status}`);
+    }
+  );
 
   it('prefers an explicit label', () => {
     const wrapper = mount(StatusBadge, {

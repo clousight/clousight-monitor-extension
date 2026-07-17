@@ -67,7 +67,28 @@ describe('status pages', () => {
     expect(values).toEqual(['1', '0', '1', '0']);
     expect(wrapper.text()).toContain('Amazon Web Services');
     expect(wrapper.text()).toContain('Google Cloud');
-    expect(wrapper.findAll('[role="status"]')).toHaveLength(3);
+    expect(wrapper.findAll('.status-badge')).toHaveLength(3);
+  });
+
+  it('describes the top summary cards in provider terms, not service terms', () => {
+    // AWS reports two operational services but is a single provider; the
+    // "Operational" card counts providers, so its description must say so too.
+    const { pinia } = setup([
+      service('AWS', 'operational', 'EC2'),
+      service('AWS', 'operational', 'S3'),
+      service('GCP', 'outage', 'Compute Engine')
+    ]);
+    const wrapper = mount(Dashboard, { global: globalOptions(pinia) });
+
+    const descriptions = wrapper.findAll('.stat-card .stat-desc').map(node => node.text());
+    expect(descriptions).toEqual([
+      'Providers running normally',
+      'Providers with performance issues',
+      'Providers experiencing downtime',
+      'Providers in planned maintenance'
+    ]);
+    expect(wrapper.text()).not.toContain('Services running normally');
+    expect(wrapper.text()).not.toContain('Services experiencing downtime');
   });
 
   it('aggregates providers, sorts incidents first, and uses shared display data', () => {
@@ -82,7 +103,7 @@ describe('status pages', () => {
     const cards = wrapper.findAll('.provider-card');
     expect(cards).toHaveLength(2);
     expect(cards[0].get('.provider-name').text()).toBe('Google Cloud');
-    expect(cards[0].get('[role="status"]').text()).toBe('Outage');
+    expect(cards[0].get('.status-badge').text()).toBe('Outage');
     expect(cards[1].get('.provider-name').text()).toBe('Amazon Web Services');
     expect(cards[1].get('[data-testid="provider-total"]').text()).toBe('3');
     expect(cards[1].get('[data-testid="provider-regions"]').text()).toBe('2');
@@ -104,9 +125,9 @@ describe('status pages', () => {
     const wrapper = mount(ProviderDetail, { global: globalOptions(pinia) });
 
     expect(wrapper.get('h1').text()).toBe('Amazon Web Services');
-    expect(wrapper.findAll('[role="status"]')).toHaveLength(3);
+    expect(wrapper.findAll('.status-badge')).toHaveLength(3);
     expect(wrapper.get('[data-testid="provider-overall-status"]').text()).toBe('Degraded');
-    expect(wrapper.findAll('tbody [role="status"]').map(badge => badge.text())).toEqual([
+    expect(wrapper.findAll('tbody .status-badge').map(badge => badge.text())).toEqual([
       'Operational',
       'Degraded'
     ]);

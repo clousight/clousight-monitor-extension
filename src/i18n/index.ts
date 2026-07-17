@@ -2,13 +2,7 @@ import { createI18n } from 'vue-i18n';
 import type { App } from 'vue';
 import en from './locales/en.json';
 import zhCN from './locales/zh-CN.json';
-import zhHant from './locales/zh-Hant.json';
-import de from './locales/de.json';
-import es from './locales/es.json';
-import fr from './locales/fr.json';
-import ja from './locales/ja.json';
-import ko from './locales/ko.json';
-import ptBR from './locales/pt-BR.json';
+import { cspMessageCompiler } from './messageCompiler';
 import {
   applyDocumentLang,
   resolveLocalePreference,
@@ -30,16 +24,11 @@ export const i18n = createI18n({
   globalInjection: true,
   locale: 'en',
   fallbackLocale: 'en',
+  // MV3 CSP forbids new Function; use our eval-free compiler (see messageCompiler.ts).
+  messageCompiler: cspMessageCompiler,
   messages: {
     en,
-    'zh-CN': zhCN,
-    'zh-Hant': zhHant,
-    de,
-    es,
-    fr,
-    ja,
-    ko,
-    'pt-BR': ptBR
+    'zh-CN': zhCN
   }
 }) as unknown as ClousightI18n;
 

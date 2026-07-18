@@ -449,7 +449,10 @@ async function bootstrap(): Promise<void> {
 Update `popup.html` body to:
 
 ```html
-<body class="m-0 min-w-[320px] bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+<body
+  class="m-0 bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100"
+  style="margin: 0; width: 360px; min-width: 360px"
+>
 ```
 
 - [ ] **Step 5: Make userStore reuse the theme helpers and watch system changes**
@@ -1232,11 +1235,11 @@ Expected: every command exits 0.
 
 Load `dist/` as an unpacked Chromium extension and verify:
 
-1. Popup at 320px, 360px and 375px has no horizontal scroll.
+1. 浏览器 action Popup 打开后稳定为 360px，不因首次视口测量缩成窄条。
 2. Default Popup and full page are light.
 3. Selecting dark in Settings updates both full page and the next Popup opening.
 4. Selecting system follows an OS/browser theme change.
-5. Logo is the blue cloud with green north arrow in Popup, sidebar and toolbar.
+5. Popup、侧栏、工具栏和通知均使用 cloudNew 的蓝色三栏箭头官方 Logo。
 6. Provider list uses “Amazon Web Services”, “Microsoft Azure”, “Google Cloud” and other registry names.
 7. A fetch failure keeps prior rows and shows a warning.
 8. No screen contains “mock”, “模拟数据” or a hardcoded `v0.1`.
@@ -1259,4 +1262,91 @@ npm run git -- log -8 --oneline
 ```
 
 Expected: redesign task files are committed; unrelated pre-existing changes remain visible and untouched. Do not push until the user explicitly requests it.
+
+---
+
+## Phase 2: Incident summaries and official logos
+
+### Task 9: Migrate the authoritative 云计算指北 Logo
+
+**Files:**
+- Copy: `/Users/bowang/IdeaProjects/cloudNew/web/public/brand/logo.png` → `public/images/logo.png`
+- Copy: `/Users/bowang/IdeaProjects/cloudNew/web/public/brand/icon_512.png` → `public/icons/icon-source.png`
+- Modify: `src/components/AppBrand.vue`
+- Modify: `src/components/AppBrand.test.ts`
+- Modify: `scripts/generate-extension-icons.js`
+- Delete: `public/images/logo.svg`
+- Delete: `public/icons/icon.svg`
+
+**Interfaces:**
+- `AppBrand` continues exposing the same props and switches its image source to `/images/logo.png`.
+- `npm run icons:generate` reads `public/icons/icon-source.png` and writes 16/32/48/128px PNGs.
+
+- [ ] Write failing tests asserting `/images/logo.png`, the official source files, and the PNG-based generator.
+- [ ] Run `npm test -- src/components/AppBrand.test.ts` and verify the old SVG expectation fails.
+- [ ] Copy the authoritative assets, update `AppBrand`, update the generator, and remove stale old-logo sources.
+- [ ] Run `npm run icons:generate`, component tests, typecheck, lint, and Chrome build.
+- [ ] Commit only Task 9 files with `feat: use official 云计算指北 logo`.
+
+### Task 10: Add local official provider logos
+
+**Files:**
+- Create: `public/images/providers/*.svg`
+- Create: `public/images/providers/README.md`
+- Create: `src/components/ProviderLogo.vue`
+- Create: `src/components/ProviderLogo.test.ts`
+- Modify: `src/utils/providerDisplay.ts`
+- Modify: `src/utils/providerDisplay.test.ts`
+
+**Interfaces:**
+- `getProviderLogoUrl(code: string): string | null`
+- `<ProviderLogo code: string name: string size?: 'sm' | 'md' />`
+- Assets use lowercase registry codes: `aws.svg`, `azure.svg`, `gcp.svg`, `alibaba.svg`, `tencent.svg`, `cloudflare.svg`, `digitalocean.svg`, `linode.svg`, `huawei.svg`, `volcano.svg`.
+
+- [ ] Write failing helper/component tests for known assets, accessible alt text, and initial-letter fallback on unknown or image error.
+- [ ] Copy AWS/Azure/GCP/Alibaba/Tencent/Huawei/Volcano assets from cloudNew `research/agent-serverless-benchmark/publish/logo-assets/`.
+- [ ] Add Cloudflare, DigitalOcean, and Akamai/Linode marks from official brand kits or Simple Icons as local SVGs; record source URL, retrieval date, trademark ownership, and any attribution guidance in README.
+- [ ] Implement the helper and component without runtime network requests.
+- [ ] Run focused tests, lint, typecheck, and build; confirm all ten files exist in `dist/images/providers/`.
+- [ ] Commit only Task 10 files with `feat: add local cloud provider logos`.
+
+### Task 11: Derive one actionable incident per provider
+
+**Files:**
+- Modify: `src/utils/statusSummary.ts`
+- Modify: `src/utils/statusSummary.test.ts`
+
+**Interfaces:**
+- Extend `ProviderSummary` with:
+
+```ts
+headline?: string;
+incidentSourceUrl?: string;
+```
+
+- [ ] Write failing tests proving headline priority (`statusMessage` → `incident.title` → `serviceName`), event-link priority (`sourceUrl` → `statusPageUrl`), severity-first selection, and newest-event tie breaking.
+- [ ] Implement deterministic candidate comparison without changing provider-level counts or ordering.
+- [ ] Ensure operational placeholders never emit an incident headline.
+- [ ] Run focused tests, full unit tests, typecheck and lint.
+- [ ] Commit only Task 11 files with `feat: derive provider incident summaries`.
+
+### Task 12: Render logos, incident summaries, and official links in Popup
+
+**Files:**
+- Modify: `src/PopupApp.vue`
+- Modify: `src/PopupApp.test.ts`
+- Modify: `src/i18n/locales/en.json`
+- Modify: `src/i18n/locales/zh-CN.json`
+- Modify: `tests/e2e/extension-smoke.spec.ts`
+
+**Interfaces:**
+- Consumes `ProviderLogo` and extended `ProviderSummary`.
+- Adds localized `popup.officialDetails`.
+
+- [ ] Write failing Popup tests: every row has a provider logo; abnormal rows show one headline and official link; normal rows show neither; missing event links fall back to official provider status pages.
+- [ ] Update each row to use a two-layer layout only when `row.worst !== 'operational' && row.headline`.
+- [ ] Render the link with `target="_blank"` and `rel="noopener noreferrer"`; preserve 44px touch targets and 360px fixed Popup width.
+- [ ] Extend E2E with stable local-asset and link-security assertions that do not depend on live provider incidents.
+- [ ] Run lint, typecheck, full unit tests, Chrome/Firefox builds, and extension E2E.
+- [ ] Rebuild `dist/`, manually inspect abnormal and normal rows, then commit with `feat: show provider incident details in popup`.
 

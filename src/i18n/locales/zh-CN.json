@@ -94,7 +94,8 @@
     "title": "云厂商",
     "loading": "正在加载云厂商数据…",
     "statusRows": "状态条目数",
-    "regionsLabel": "区域数"
+    "regionsLabel": "区域数",
+    "lastChecked": "上次探查"
   },
   "providerDetail": {
     "back": "返回云厂商列表",

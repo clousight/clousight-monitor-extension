@@ -94,7 +94,8 @@
     "title": "Cloud Providers",
     "loading": "Loading providers data…",
     "statusRows": "Status rows",
-    "regionsLabel": "Regions"
+    "regionsLabel": "Regions",
+    "lastChecked": "Last checked"
   },
   "providerDetail": {
     "back": "Back to Providers",

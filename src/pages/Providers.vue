@@ -1,7 +1,10 @@
 <template>
   <div class="providers-page">
     <div class="page-header">
-      <h1 class="page-title">{{ t('providers.title') }}</h1>
+      <div class="header-titles">
+        <h1 class="page-title">{{ t('providers.title') }}</h1>
+        <p class="last-checked">{{ t('providers.lastChecked') }} {{ lastCheckedText }}</p>
+      </div>
 
       <div class="actions">
         <button class="btn btn-outline" :disabled="loading" @click="refreshStatus">
@@ -37,7 +40,10 @@
     <div v-else class="providers-grid">
       <div v-for="provider in providerCards" :key="provider.id" class="provider-card">
         <div class="card-header">
-          <h2 class="provider-name">{{ provider.name }}</h2>
+          <div class="provider-heading">
+            <ProviderLogo :code="provider.code" :name="provider.name" size="md" />
+            <h2 class="provider-name">{{ provider.name }}</h2>
+          </div>
           <StatusBadge :status="provider.worst" />
         </div>
 
@@ -85,6 +91,8 @@
           </div>
         </div>
 
+        <p class="card-checked">{{ t('providers.lastChecked') }} {{ lastCheckedText }}</p>
+
         <div class="card-footer">
           <a
             v-if="provider.statusPageUrl"
@@ -110,10 +118,13 @@ import { useI18n } from 'vue-i18n';
 import { useStatusStore } from '@/stores/statusStore';
 import AppIcon from '@/components/AppIcon.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
+import ProviderLogo from '@/components/ProviderLogo.vue';
+import { useStatusLastUpdated } from '@/composables/useStatusLastUpdated';
 import { deriveProviderSummaries } from '@/utils/statusSummary';
 
 const { t } = useI18n();
 const statusStore = useStatusStore();
+const lastCheckedText = useStatusLastUpdated();
 const loading = ref(true);
 
 const hasAnyStatusRows = computed(() => statusStore.services.length > 0);
@@ -197,8 +208,24 @@ const providerCards = computed(() => deriveProviderSummaries(statusStore.service
   @apply flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700;
 }
 
+.header-titles {
+  @apply flex flex-col gap-1;
+}
+
+.last-checked {
+  @apply text-xs text-slate-500 dark:text-slate-400;
+}
+
+.provider-heading {
+  @apply flex items-center gap-2 min-w-0;
+}
+
 .provider-name {
-  @apply text-lg font-medium text-slate-800 dark:text-slate-200;
+  @apply text-lg font-medium text-slate-800 dark:text-slate-200 truncate;
+}
+
+.card-checked {
+  @apply px-4 pb-1 text-xs text-slate-400 dark:text-slate-500;
 }
 
 .status-operational {

@@ -123,8 +123,6 @@ describe('DefaultLayout mobile navigation', () => {
     expect(sidebarStyles).not.toMatch(
       /\b(?:h|w|min-h|max-h|min-w|max-w)-\S+|\bborder(?:-[trblxy])?(?:-\S+)?/
     );
-    expect(mainContentStyles).not.toMatch(
-      /\b(?:[a-z0-9-[\]]+:)*(?:p|px|py|pt|pr|pb|pl)-\S+/
-    );
+    expect(mainContentStyles).not.toMatch(/\b(?:[a-z0-9-[\]]+:)*(?:p|px|py|pt|pr|pb|pl)-\S+/);
   });
 });

@@ -28,8 +28,7 @@ export default defineConfig({
       // our cspMessageCompiler does the work.
       'vue-i18n': 'vue-i18n/dist/vue-i18n.runtime.esm-bundler.js',
       '@intlify/core-base': '@intlify/core-base/dist/core-base.esm-bundler.js',
-      '@intlify/message-compiler':
-        '@intlify/message-compiler/dist/message-compiler.esm-bundler.js'
+      '@intlify/message-compiler': '@intlify/message-compiler/dist/message-compiler.esm-bundler.js'
     }
   },
   test: {

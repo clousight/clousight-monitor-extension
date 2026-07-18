@@ -5,5 +5,9 @@ export function getProviderDisplayName(code: string): string {
 }
 
 export function getProviderId(code: string): string {
-  return code.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return code
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }

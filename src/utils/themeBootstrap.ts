@@ -5,17 +5,13 @@ function normalizeTheme(theme: unknown): ThemePreference {
   return theme === 'dark' || theme === 'system' ? theme : 'light';
 }
 
-export function resolveTheme(
-  theme: ThemePreference,
-  prefersDark: boolean
-): EffectiveTheme {
+export function resolveTheme(theme: ThemePreference, prefersDark: boolean): EffectiveTheme {
   return theme === 'system' ? (prefersDark ? 'dark' : 'light') : theme;
 }
 
 export function applyThemeClass(theme: ThemePreference): void {
   const prefersDark =
-    typeof matchMedia !== 'undefined' &&
-    matchMedia('(prefers-color-scheme: dark)').matches;
+    typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches;
   const effectiveTheme = resolveTheme(theme, prefersDark);
 
   document.documentElement.classList.toggle('dark', effectiveTheme === 'dark');

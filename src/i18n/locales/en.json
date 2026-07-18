@@ -226,7 +226,8 @@
     "empty": "No provider status is available yet.",
     "retry": "Try again",
     "dataSource": "Data from providers’ official status sources",
-    "version": "v{version}"
+    "version": "v{version}",
+    "officialDetails": "Official details"
   },
   "routes": {
     "dashboard": "Dashboard",

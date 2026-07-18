@@ -72,6 +72,21 @@ test.describe('Clousight extension (dist)', () => {
       await expect(popup.locator('html')).not.toHaveClass(/dark/);
       await expect(popup.locator('body')).toHaveCSS('width', '360px');
 
+      // Provider logos are bundled locally — served from the extension origin,
+      // never fetched from a third-party CDN at runtime.
+      const logoStatus = await popup.evaluate(
+        async () => (await fetch('/images/providers/aws.svg')).status
+      );
+      expect(logoStatus, 'bundled provider logo should be served locally').toBe(200);
+
+      // Any incident deep-link must open securely; stable regardless of whether
+      // a live incident is currently present.
+      const incidentLinks = popup.getByTestId('incident-link');
+      for (let i = 0; i < (await incidentLinks.count()); i++) {
+        await expect(incidentLinks.nth(i)).toHaveAttribute('target', '_blank');
+        await expect(incidentLinks.nth(i)).toHaveAttribute('rel', 'noopener noreferrer');
+      }
+
       const popupRoot = popup.getByTestId('popup-root');
       for (const { viewport, expectedRoot } of popupWidths) {
         await popup.setViewportSize({ width: viewport, height: 720 });

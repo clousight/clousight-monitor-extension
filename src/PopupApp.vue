@@ -76,10 +76,37 @@
       <li
         v-for="row in providerSummaries"
         :key="row.id"
-        class="flex min-h-[44px] items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-800 dark:bg-slate-900"
+        data-testid="popup-row"
+        class="rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-800 dark:bg-slate-900"
       >
-        <span class="truncate text-xs font-semibold">{{ row.name }}</span>
-        <StatusBadge :status="row.worst" />
+        <div class="flex min-h-[44px] items-center justify-between gap-3">
+          <div class="flex min-w-0 items-center gap-2">
+            <ProviderLogo :code="row.code" :name="row.name" />
+            <span class="truncate text-xs font-semibold">{{ row.name }}</span>
+          </div>
+          <StatusBadge :status="row.worst" />
+        </div>
+        <div
+          v-if="row.worst !== 'operational' && row.headline"
+          class="mt-1.5 border-t border-slate-100 pt-1.5 dark:border-slate-800"
+        >
+          <p
+            data-testid="incident-headline"
+            class="line-clamp-2 text-[11px] text-slate-600 dark:text-slate-400"
+          >
+            {{ row.headline }}
+          </p>
+          <a
+            v-if="row.incidentSourceUrl"
+            data-testid="incident-link"
+            :href="row.incidentSourceUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-0.5 inline-flex min-h-[44px] items-center text-[11px] font-semibold text-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-300"
+          >
+            {{ t('popup.officialDetails') }}
+          </a>
+        </div>
       </li>
     </ul>
 
@@ -116,6 +143,7 @@
 import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import AppBrand from '@/components/AppBrand.vue';
+import ProviderLogo from '@/components/ProviderLogo.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { useStatusLastUpdated } from '@/composables/useStatusLastUpdated';
 import { useStatusStore } from '@/stores/statusStore';

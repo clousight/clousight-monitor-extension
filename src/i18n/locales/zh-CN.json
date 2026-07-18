@@ -226,7 +226,8 @@
     "empty": "暂未取得云服务商状态。",
     "retry": "重试",
     "dataSource": "数据来自云厂商官方状态源",
-    "version": "v{version}"
+    "version": "v{version}",
+    "officialDetails": "官方详情"
   },
   "routes": {
     "dashboard": "概览",

@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '@/i18n';
 import { useStatusStore } from '@/stores/statusStore';
 import type { ServiceStatus } from '@/types/status';
+import ProviderLogo from '@/components/ProviderLogo.vue';
 import PopupApp from './PopupApp.vue';
 
 function service(
@@ -180,6 +181,66 @@ describe('PopupApp', () => {
       expect.arrayContaining(['min-w-0', 'overflow-hidden', 'break-words'])
     );
     expect(wrapper.text()).not.toContain('Try again');
+  });
+
+  it('renders a provider logo for every row', () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const store = useStatusStore();
+    store.services = [service('AWS', 'operational'), service('GCP', 'degraded')];
+    vi.spyOn(store, 'fetchStatus').mockResolvedValue();
+    const wrapper = mount(PopupApp, { global: { plugins: [pinia, i18n] } });
+
+    expect(wrapper.findAll('[data-testid="popup-row"]')).toHaveLength(2);
+    expect(wrapper.findAllComponents(ProviderLogo)).toHaveLength(2);
+  });
+
+  it('shows one incident headline and a secure official link for abnormal rows', () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const store = useStatusStore();
+    store.services = [
+      {
+        ...service('AWS', 'outage'),
+        statusMessage: 'Elevated error rates in us-east-1',
+        sourceUrl: 'https://status.example/aws/incident-1'
+      }
+    ];
+    vi.spyOn(store, 'fetchStatus').mockResolvedValue();
+    const wrapper = mount(PopupApp, { global: { plugins: [pinia, i18n] } });
+
+    expect(wrapper.get('[data-testid="incident-headline"]').text()).toBe(
+      'Elevated error rates in us-east-1'
+    );
+    const link = wrapper.get('[data-testid="incident-link"]');
+    expect(link.attributes('href')).toBe('https://status.example/aws/incident-1');
+    expect(link.attributes('target')).toBe('_blank');
+    expect(link.attributes('rel')).toBe('noopener noreferrer');
+  });
+
+  it('falls back to the official status page when an event has no deep link', () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const store = useStatusStore();
+    store.services = [{ ...service('GCP', 'degraded'), statusMessage: 'Networking degraded' }];
+    vi.spyOn(store, 'fetchStatus').mockResolvedValue();
+    const wrapper = mount(PopupApp, { global: { plugins: [pinia, i18n] } });
+
+    expect(wrapper.get('[data-testid="incident-link"]').attributes('href')).toBe(
+      'https://status.cloud.google.com/'
+    );
+  });
+
+  it('shows no incident headline or link for operational providers', () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const store = useStatusStore();
+    store.services = [service('AWS', 'operational')];
+    vi.spyOn(store, 'fetchStatus').mockResolvedValue();
+    const wrapper = mount(PopupApp, { global: { plugins: [pinia, i18n] } });
+
+    expect(wrapper.find('[data-testid="incident-headline"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="incident-link"]').exists()).toBe(false);
   });
 
   it('opens the dashboard and extension settings from popup actions', async () => {

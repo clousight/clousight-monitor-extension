@@ -18,7 +18,7 @@ background service worker
         ├─ 3. normalize, dedupe, and cap events
         ├─ 4. update the toolbar badge
         ├─ 5. write status to chrome.storage.local
-        ├─ 6. match new events against local subscription rules
+        ├─ 6. keep new events at/above the min-severity threshold
         └─ 7. raise chrome.notifications + append to local history
         │
         ▼
@@ -36,8 +36,9 @@ Each cycle:
    the newest) and **capped**.
 5. The toolbar **badge** updates, and status is written to
    `chrome.storage.local`.
-6. New events are **matched** against locally-stored subscription rules.
-7. Matches raise `chrome.notifications` and are appended to the local
+6. New events are **filtered** by the notification minimum-severity threshold
+   (from your enabled providers).
+7. Qualifying events raise `chrome.notifications` and are appended to the local
    notification history.
 
 ## Parsers
@@ -78,7 +79,7 @@ Adding a provider is therefore a small, well-scoped task:
 
 | Store | Contents |
 | --- | --- |
-| `chrome.storage.sync` | Settings and subscription rules |
+| `chrome.storage.sync` | Settings (providers, theme, notification preferences) |
 | `chrome.storage.local` | Latest status, notification history, seen-event-id set (for dedupe), optional LLM config |
 
 Settings and rules live in **sync** storage so they follow the browser profile.

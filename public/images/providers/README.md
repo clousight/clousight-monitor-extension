@@ -15,11 +15,11 @@ in `getProviderLogoUrl` to enable a real logo.
 
 | File | Source | Retrieved | Notes |
 | --- | --- | --- | --- |
-| `aws.svg` | https://www.vectorlogo.zone/logos/amazon_aws/amazon_aws-icon.svg | 2026-07-18 | Amazon Web Services icon |
+| `aws.svg` | Simple Icons `amazonwebservices` (https://simpleicons.org) | 2026-07-18 | Current AWS "smile" mark, tinted AWS orange #FF9900 |
 | `azure.svg` | https://www.vectorlogo.zone/logos/microsoft_azure/microsoft_azure-icon.svg | 2026-07-18 | Microsoft Azure icon |
 | `gcp.svg` | https://www.vectorlogo.zone/logos/google_cloud/google_cloud-icon.svg | 2026-07-18 | Google Cloud icon |
-| `alibaba.svg` | https://www.vectorlogo.zone/logos/alibabacloud/alibabacloud-icon.svg | 2026-07-18 | Alibaba Cloud icon |
-| `tencent.svg` | https://www.vectorlogo.zone/logos/tencent/tencent-icon.svg | 2026-07-18 | Tencent icon |
+| `alibaba.svg` | Simple Icons `alibabacloud` (https://simpleicons.org) | 2026-07-18 | Alibaba Cloud bracket mark, tinted Alibaba orange #FF6A00 |
+| `tencent.svg` | CloudNorth brand asset (Tencent Cloud icon) | 2026-07-18 | Tencent **Cloud** icon (not the Tencent/QQ corporate mark) |
 | `huawei.svg` | https://www.vectorlogo.zone/logos/huawei/huawei-icon.svg | 2026-07-18 | Huawei corporate mark |
 | `cloudflare.svg` | https://www.vectorlogo.zone/logos/cloudflare/cloudflare-icon.svg | 2026-07-18 | Cloudflare icon |
 | `digitalocean.svg` | https://www.vectorlogo.zone/logos/digitalocean/digitalocean-icon.svg | 2026-07-18 | DigitalOcean icon |

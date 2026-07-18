@@ -1,10 +1,6 @@
 <template>
   <DefaultLayout>
-    <RouterView v-slot="{ Component }">
-      <KeepAlive :include="['SubscriptionsPage']">
-        <component :is="Component" />
-      </KeepAlive>
-    </RouterView>
+    <RouterView />
   </DefaultLayout>
 </template>
 

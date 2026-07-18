@@ -126,12 +126,20 @@
               {{ t('settings.browserNotifications') }}
             </label>
           </div>
-          <p class="form-help">
-            {{ t('settings.notifyRulesHint') }}
-            <router-link to="/subscriptions" class="text-primary-600 hover:underline">
-              {{ t('nav.subscriptions') }}
-            </router-link>
-          </p>
+        </div>
+
+        <div v-if="settings.notifications.enabled" class="form-group">
+          <label for="notify-severity" class="form-label">
+            {{ t('settings.notifyMinSeverity') }}
+          </label>
+          <select
+            id="notify-severity"
+            v-model="settings.notifications.minSeverity"
+            class="form-input max-w-xs"
+          >
+            <option v-for="s in severityOptions" :key="s" :value="s">{{ s }}</option>
+          </select>
+          <p class="form-help">{{ t('settings.notifyMinSeverityHelp') }}</p>
         </div>
       </section>
 
@@ -206,6 +214,7 @@ import { useUserStore } from '@/stores/userStore';
 import type { LocalePreference } from '@/utils/detectLocale';
 import { getLlmConfig, saveLlmConfig, DEFAULT_LLM_CONFIG, type LlmConfig } from '@/services/llm';
 import { PROVIDERS, getProvider } from '@/services/providers/registry';
+import { SEVERITY_ORDER } from '@/services/providers/types';
 import { requestProviderOrigin, removeProviderOrigin } from '@/services/permissions';
 import type { ThemePreference } from '@/utils/themeBootstrap';
 import { getExtensionVersion } from '@/utils/extensionMeta';
@@ -231,6 +240,7 @@ const isExtension =
 const settings = computed(() => userStore.settings);
 
 const allProviders = PROVIDERS;
+const severityOptions = SEVERITY_ORDER;
 
 function isProviderEnabled(code: string): boolean {
   return userStore.settings.providers.includes(code);

@@ -8,6 +8,7 @@ import { setGlobalLocale } from '@/i18n';
 import type { LocalePreference } from '@/utils/detectLocale';
 import { migrateLegacyLocaleCode, SUPPORTED_LOCALES } from '@/utils/detectLocale';
 import { VERIFIED_PROVIDERS } from '@/services/providers/registry';
+import type { Severity } from '@/services/providers/types';
 import { applyThemeClass, resolveTheme, type ThemePreference } from '@/utils/themeBootstrap';
 
 interface UserSettings {
@@ -24,6 +25,8 @@ interface UserSettings {
     /** Master switch for browser notifications. */
     enabled: boolean;
     browser: boolean;
+    /** Only notify for incidents at or above this severity. */
+    minSeverity: Severity;
   };
   filters: {
     defaultFilter: string | null;
@@ -66,7 +69,8 @@ export const useUserStore = defineStore('user', {
       providers: VERIFIED_PROVIDERS.map(p => p.code),
       notifications: {
         enabled: true,
-        browser: true
+        browser: true,
+        minSeverity: 'major'
       },
       filters: {
         defaultFilter: null,
@@ -104,6 +108,7 @@ export const useUserStore = defineStore('user', {
               this.settings = { ...this.settings, ...data.settings };
             }
             this.normalizeLocalePreferenceState();
+            this.normalizeNotificationsState();
             const loc =
               typeof data.cnLocale === 'string'
                 ? migrateLegacyLocaleCode(data.cnLocale)
@@ -124,6 +129,7 @@ export const useUserStore = defineStore('user', {
         }
       }
       this.normalizeLocalePreferenceState();
+      this.normalizeNotificationsState();
       const cnRaw = localStorage.getItem('cnLocale');
       const cn = cnRaw ? migrateLegacyLocaleCode(cnRaw) : null;
       if (cn === 'auto' || (cn && (SUPPORTED_LOCALES as readonly string[]).includes(cn))) {
@@ -138,6 +144,18 @@ export const useUserStore = defineStore('user', {
         this.settings.localePreference = migrated as LocalePreference;
       } else {
         this.settings.localePreference = 'auto';
+      }
+    },
+
+    /** Backfill notification defaults for settings saved before a field existed. */
+    normalizeNotificationsState() {
+      const n = this.settings.notifications;
+      if (!n || typeof n !== 'object') {
+        this.settings.notifications = { enabled: true, browser: true, minSeverity: 'major' };
+        return;
+      }
+      if (n.minSeverity === undefined) {
+        n.minSeverity = 'major';
       }
     },
 

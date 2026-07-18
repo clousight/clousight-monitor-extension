@@ -7,7 +7,6 @@
     "dashboard": "概览",
     "providers": "云厂商",
     "notifications": "通知",
-    "subscriptions": "订阅规则",
     "settings": "设置",
     "login": "登录",
     "logout": "退出登录",
@@ -159,29 +158,6 @@
     "oneDayAgo": "1 天前",
     "daysAgo": "{count} 天前"
   },
-  "subscriptions": {
-    "title": "订阅规则",
-    "lead": "按云厂商、区域和严重度匹配公开状态事件。服务端在配置邮件/Webhook 后负责投递。",
-    "newRule": "新建规则",
-    "providers": "云厂商",
-    "minSeverity": "最低严重度",
-    "channels": "渠道",
-    "editRule": "编辑规则",
-    "newRuleTitle": "新建规则",
-    "matchAll": "匹配全部云厂商",
-    "regionsPlaceholder": "区域（逗号或换行分隔）",
-    "svcKeywords": "服务关键词",
-    "channelBrowser": "浏览器（扩展轮询）",
-    "confirmDelete": "确定删除规则「{name}」？",
-    "all": "全部",
-    "saveFailed": "保存失败",
-    "selectProvider": "请至少选择一个云厂商，或勾选「匹配全部云厂商」。",
-    "ruleLimitHint": "当前账号最多支持 {max} 条订阅规则。",
-    "emptyHint": "还没有订阅规则。创建一条，即可在你关心的事件发生时收到通知。",
-    "regionSelect": "区域",
-    "serviceSelect": "服务",
-    "cascadeHint": "AWS 为精确匹配，阿里云为尽力而为；不带区域或服务标签的事件不会被此筛选命中。"
-  },
   "settings": {
     "title": "设置",
     "loading": "正在加载设置…",
@@ -209,7 +185,6 @@
     "themeSystem": "跟随系统",
     "aboutBrand": "云计算指北",
     "officialDataNote": "状态数据来自云厂商公开的官方状态源。",
-    "notifyRulesHint": "在订阅规则中设置哪些事件触发通知：",
     "privacyNote": "无账号、无服务器——所有设置仅保存在本地浏览器。",
     "aiSection": "AI 简报（可选）",
     "aiHelp": "填入你自己的 OpenAI 兼容 API Key，即可生成简短的事件简报。密钥仅保存在本地，只会发送到你配置的接口。",
@@ -217,7 +192,9 @@
     "aiModel": "模型",
     "aiApiKey": "API 密钥",
     "aiKeyLocalNote": "仅保存在本浏览器本地，不会同步。",
-    "experimental": "实验性"
+    "experimental": "实验性",
+    "notifyMinSeverity": "通知的最低严重度",
+    "notifyMinSeverityHelp": "仅当已启用厂商出现达到或超过该严重度的事件时才弹出浏览器通知。"
   },
   "popup": {
     "tagline": "多云服务健康状态",
@@ -242,7 +219,6 @@
     "providers": "云厂商",
     "providerDetail": "云厂商详情",
     "notifications": "通知",
-    "subscriptions": "订阅规则",
     "settings": "设置",
     "notFound": "404"
   }

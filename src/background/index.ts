@@ -1,18 +1,17 @@
 /**
  * Background service worker for Clousight.
  *
- * Periodically fetches cloud provider status locally (no backend), keeps the
- * toolbar badge updated, and raises a browser notification when a fetched
- * incident matches one of the user's local subscription rules.
+ * Periodically fetches the enabled providers' status locally (no backend), keeps
+ * the toolbar badge updated, and raises a browser notification for each new
+ * incident at or above the user's chosen minimum severity.
  */
 
 import { fetchStatusSummary } from '../services/providers/fetchSummary';
 import { eventsToServiceStatuses } from '../services/statusService';
-import { getSubscriptions } from '../services/subscriptions';
-import { matchingSubscriptions } from '../services/matcher';
 import { addNotifications, notificationFromEvent } from '../services/notifications';
+import { meetsMinSeverity } from '../services/providers/severity';
 import { hasProviderOrigin } from '../services/permissions';
-import type { NormalizedEvent } from '../services/providers/types';
+import type { NormalizedEvent, Severity } from '../services/providers/types';
 import { ServiceStatus } from '../types/status';
 
 const STATUS_ALARM = 'statusCheck';
@@ -29,8 +28,11 @@ interface StoredSettings {
     enabled?: boolean;
     browser?: boolean;
     channels?: { browser?: boolean };
+    minSeverity?: Severity;
   };
 }
+
+const DEFAULT_MIN_SEVERITY: Severity = 'major';
 
 async function getSettings(): Promise<StoredSettings> {
   const { settings } = await chrome.storage.sync.get('settings');
@@ -129,27 +131,25 @@ async function writeSeen(seen: Set<string>): Promise<void> {
 }
 
 /**
- * Match freshly-fetched incidents against local subscription rules and raise a
- * notification for each new match. No rules → no notifications (badge still updates).
+ * Raise a notification for each new incident from an enabled provider that meets
+ * the user's minimum severity. Providers are already filtered upstream (only
+ * enabled+granted providers are fetched), so this just applies the severity gate
+ * and de-duplicates against previously-seen events.
  */
 async function processIncidentNotifications(events: NormalizedEvent[]): Promise<void> {
-  const subs = await getSubscriptions();
   const seen = await readSeen();
   const settings = await getSettings();
   const notify = browserNotificationsEnabled(settings);
+  const minSeverity = settings.notifications?.minSeverity ?? DEFAULT_MIN_SEVERITY;
 
   const fresh = events.filter(ev => !seen.has(`${ev.provider}|${ev.external_id}`));
   const created: NormalizedEvent[] = [];
 
   for (const ev of fresh) {
     seen.add(`${ev.provider}|${ev.external_id}`);
-    if (subs.length === 0) {
-      continue;
-    }
-    const matched = matchingSubscriptions(ev, subs);
-    if (matched.length > 0) {
+    if (meetsMinSeverity(ev.severity, minSeverity)) {
       created.push(ev);
-      await addNotifications([notificationFromEvent(ev, matched[0].id)]);
+      await addNotifications([notificationFromEvent(ev)]);
     }
   }
 

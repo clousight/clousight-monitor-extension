@@ -24,13 +24,6 @@
         </div>
         <span class="label">{{ t('nav.notifications') }}</span>
       </router-link>
-
-      <router-link to="/subscriptions" class="nav-item" active-class="active">
-        <div class="icon">
-          <AppIcon name="rule" class="material-icons" />
-        </div>
-        <span class="label">{{ t('nav.subscriptions') }}</span>
-      </router-link>
     </div>
 
     <div class="nav-section">

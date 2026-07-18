@@ -1,13 +1,25 @@
 /**
  * Local notification history (chrome.storage.local). Entries are created by the
- * background worker when a fetched incident matches a local subscription rule.
- * Replaces the former server-backed notifications feed.
+ * background worker for each new incident from an enabled provider that meets the
+ * user's minimum severity. Retention: at most MAX_STORED entries and nothing
+ * older than MAX_AGE_MS.
  */
 
 import type { NormalizedEvent, Severity } from './providers/types';
 
 const STORAGE_KEY = 'notifications';
 const MAX_STORED = 100;
+const MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+/** Apply the retention policy: drop entries older than maxAgeMs, then cap count. */
+export function pruneNotifications(
+  list: LocalNotification[],
+  now: number,
+  maxAgeMs = MAX_AGE_MS,
+  maxCount = MAX_STORED
+): LocalNotification[] {
+  return list.filter(n => now - n.createdAt <= maxAgeMs).slice(0, maxCount);
+}
 
 export interface LocalNotification {
   id: string;
@@ -40,7 +52,7 @@ export async function getNotifications(): Promise<LocalNotification[]> {
 }
 
 async function writeAll(list: LocalNotification[]): Promise<void> {
-  const trimmed = list.slice(0, MAX_STORED);
+  const trimmed = pruneNotifications(list, Date.now());
   if (hasLocal()) {
     await chrome.storage.local.set({ [STORAGE_KEY]: trimmed });
   } else {

@@ -3,7 +3,6 @@ import Dashboard from '@/pages/Dashboard.vue';
 import Providers from '@/pages/Providers.vue';
 import Settings from '@/pages/Settings.vue';
 import Notifications from '@/pages/Notifications.vue';
-import Subscriptions from '@/pages/Subscriptions.vue';
 import NotFound from '@/pages/NotFound.vue';
 import { translateRouteTitle } from '@/i18n';
 
@@ -32,12 +31,6 @@ const routes = [
     name: 'Notifications',
     component: Notifications,
     meta: { titleKey: 'routes.notifications' }
-  },
-  {
-    path: '/subscriptions',
-    name: 'Subscriptions',
-    component: Subscriptions,
-    meta: { titleKey: 'routes.subscriptions' }
   },
   {
     path: '/settings',

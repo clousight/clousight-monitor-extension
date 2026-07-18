@@ -172,7 +172,10 @@
     "saveFailed": "Save failed",
     "selectProvider": "Select at least one provider, or enable “Match all providers”.",
     "ruleLimitHint": "You have reached the maximum of {max} rules for this account.",
-    "emptyHint": "No subscription rules yet. Create one to get notified about incidents you care about."
+    "emptyHint": "No subscription rules yet. Create one to get notified about incidents you care about.",
+    "regionSelect": "Regions",
+    "serviceSelect": "Services",
+    "cascadeHint": "Exact for AWS, best-effort for Alibaba. Incidents without a region or service tag will not match a filter."
   },
   "settings": {
     "title": "Settings",

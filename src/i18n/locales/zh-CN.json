@@ -172,7 +172,10 @@
     "saveFailed": "保存失败",
     "selectProvider": "请至少选择一个云厂商，或勾选「匹配全部云厂商」。",
     "ruleLimitHint": "当前账号最多支持 {max} 条订阅规则。",
-    "emptyHint": "还没有订阅规则。创建一条，即可在你关心的事件发生时收到通知。"
+    "emptyHint": "还没有订阅规则。创建一条，即可在你关心的事件发生时收到通知。",
+    "regionSelect": "区域",
+    "serviceSelect": "服务",
+    "cascadeHint": "AWS 为精确匹配，阿里云为尽力而为；不带区域或服务标签的事件不会被此筛选命中。"
   },
   "settings": {
     "title": "设置",

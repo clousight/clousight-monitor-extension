@@ -8,6 +8,7 @@
     <div class="toolbar flex flex-wrap items-center gap-3">
       <button
         type="button"
+        data-testid="new-rule"
         class="btn btn-primary"
         :disabled="saving || items.length >= SUBSCRIPTION_RULE_MAX"
         @click="startCreate"
@@ -75,12 +76,23 @@
 
         <div class="form-group">
           <label class="flex items-center gap-2">
-            <input v-model="form.allProviders" type="checkbox" class="form-checkbox" />
+            <input
+              v-model="form.allProviders"
+              data-testid="all-providers"
+              type="checkbox"
+              class="form-checkbox"
+            />
             {{ t('subscriptions.matchAll') }}
           </label>
           <div v-if="!form.allProviders" class="provider-grid mt-2">
             <label v-for="p in providerCodes" :key="p" class="flex items-center gap-2 text-sm">
-              <input v-model="form.providers" type="checkbox" :value="p" class="form-checkbox" />
+              <input
+                v-model="form.providers"
+                type="checkbox"
+                :value="p"
+                :data-testid="`provider-${p}`"
+                class="form-checkbox"
+              />
               {{ p }}
             </label>
           </div>
@@ -93,27 +105,68 @@
           </select>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="sub-reg">{{
-            t('subscriptions.regionsPlaceholder')
-          }}</label>
-          <textarea
-            id="sub-reg"
-            v-model="form.regionsText"
-            rows="2"
-            class="form-input font-mono text-sm"
-          />
-        </div>
+        <template v-if="cascade">
+          <div class="form-group" data-testid="region-cascade">
+            <span class="form-label">{{ t('subscriptions.regionSelect') }}</span>
+            <div class="option-grid">
+              <label v-for="r in regionOptions" :key="r" class="flex items-center gap-2 text-sm">
+                <input
+                  v-model="form.regions"
+                  type="checkbox"
+                  :value="r"
+                  :data-testid="`region-opt-${r}`"
+                  class="form-checkbox"
+                />
+                {{ r }}
+              </label>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label class="form-label" for="sub-svc">{{ t('subscriptions.svcKeywords') }}</label>
-          <textarea
-            id="sub-svc"
-            v-model="form.servicesText"
-            rows="2"
-            class="form-input font-mono text-sm"
-          />
-        </div>
+          <div v-if="serviceOptions.length" class="form-group" data-testid="service-cascade">
+            <span class="form-label">{{ t('subscriptions.serviceSelect') }}</span>
+            <div class="option-grid">
+              <label v-for="s in serviceOptions" :key="s" class="flex items-center gap-2 text-sm">
+                <input
+                  v-model="form.services"
+                  type="checkbox"
+                  :value="s"
+                  :data-testid="`service-opt-${s}`"
+                  class="form-checkbox"
+                />
+                {{ s }}
+              </label>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ t('subscriptions.cascadeHint') }}
+          </p>
+        </template>
+
+        <template v-else>
+          <div class="form-group">
+            <label class="form-label" for="sub-reg">{{
+              t('subscriptions.regionsPlaceholder')
+            }}</label>
+            <textarea
+              id="sub-reg"
+              v-model="form.regionsText"
+              rows="2"
+              data-testid="region-freetext"
+              class="form-input font-mono text-sm"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sub-svc">{{ t('subscriptions.svcKeywords') }}</label>
+            <textarea
+              id="sub-svc"
+              v-model="form.servicesText"
+              rows="2"
+              class="form-input font-mono text-sm"
+            />
+          </div>
+        </template>
 
         <div class="form-group">
           <label class="flex items-center gap-2">
@@ -128,7 +181,7 @@
           <button type="button" class="btn btn-outline" :disabled="saving" @click="cancelEditor">
             {{ t('common.cancel') }}
           </button>
-          <button type="submit" class="btn btn-primary" :disabled="saving">
+          <button type="submit" data-testid="save-rule" class="btn btn-primary" :disabled="saving">
             {{ saving ? t('common.saving') : t('common.save') }}
           </button>
         </div>
@@ -138,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   getSubscriptions,
@@ -149,6 +202,7 @@ import {
   type LocalSubscription
 } from '@/services/subscriptions';
 import { PROVIDER_CODES } from '@/services/providers/registry';
+import { getRegionOptions, getServiceOptions, supportsCascade } from '@/services/providers/catalog';
 import { SEVERITY_ORDER, type Severity } from '@/services/providers/types';
 
 const { t } = useI18n();
@@ -173,9 +227,30 @@ const form = ref({
   allProviders: true,
   providers: [] as string[],
   minSeverity: 'major' as Severity,
+  regions: [] as string[],
+  services: [] as string[],
   regionsText: '',
   servicesText: '',
   browser: true
+});
+
+// Cascading region/service selection is offered only for providers whose feed
+// carries structured region/service data (see providers/catalog.ts).
+const selectedCodes = computed(() => (form.value.allProviders ? [] : form.value.providers));
+const cascade = computed(() => supportsCascade(selectedCodes.value));
+const regionOptions = computed(() => getRegionOptions(selectedCodes.value));
+const serviceOptions = computed(() => getServiceOptions(selectedCodes.value));
+
+// Drop any selected region/service the current provider set no longer offers.
+// Skip while options are empty (a transient state between provider edits, or a
+// non-cascade selection) so valid selections survive switching providers.
+watch([regionOptions, serviceOptions], ([regions, services]) => {
+  if (regions.length) {
+    form.value.regions = form.value.regions.filter(r => regions.includes(r));
+  }
+  if (services.length) {
+    form.value.services = form.value.services.filter(s => services.includes(s));
+  }
 });
 
 function splitList(text: string): string[] {
@@ -207,6 +282,8 @@ function resetForm(): void {
     allProviders: true,
     providers: [],
     minSeverity: 'major',
+    regions: [],
+    services: [],
     regionsText: '',
     servicesText: '',
     browser: true
@@ -228,6 +305,8 @@ function startEdit(row: LocalSubscription): void {
     allProviders: all,
     providers: all ? [] : [...row.providers],
     minSeverity: row.minSeverity,
+    regions: [...row.regions],
+    services: [...row.services],
     regionsText: row.regions.join(', '),
     servicesText: row.services.join(', '),
     browser: row.browser
@@ -249,11 +328,12 @@ async function saveEditor(): Promise<void> {
     formError.value = t('subscriptions.selectProvider');
     return;
   }
+  const useCascade = cascade.value;
   const input = {
     name: form.value.name.trim() || 'default',
     providers,
-    regions: splitList(form.value.regionsText),
-    services: splitList(form.value.servicesText),
+    regions: useCascade ? [...form.value.regions] : splitList(form.value.regionsText),
+    services: useCascade ? [...form.value.services] : splitList(form.value.servicesText),
     minSeverity: form.value.minSeverity,
     browser: form.value.browser
   };
@@ -386,6 +466,10 @@ onMounted(loadList);
 
 .provider-grid {
   @apply grid grid-cols-2 sm:grid-cols-3 gap-2;
+}
+
+.option-grid {
+  @apply grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto rounded-md border border-slate-200 dark:border-slate-700 p-2;
 }
 
 .error-text {

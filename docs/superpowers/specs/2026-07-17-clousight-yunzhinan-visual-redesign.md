@@ -135,7 +135,7 @@ Popup 不再展示“本地模拟数据”。推荐文案为“数据来自云�
 - 更新 `en` 和 `zh-CN` 后运行 i18n 相关测试。
 - 为整体状态派生、厂商名称映射和版本读取补充单元测试。
 - 检查键盘导航、焦点环、44px 触控目标及浅深色对比度。
-- 在 320px、360px 和 375px 宽度检查 Popup，无横向滚动。
+- 浏览器 action Popup 固定为 360px；HTML 壳在首屏同步声明该宽度，避免扩展 Popup 自动测量时与 `vw` 形成窄宽反馈。
 - 运行 `npm run lint`、`npm run typecheck`、`npm test`。
 - 运行 Chrome 与 Firefox 两套扩展构建。
 
@@ -146,3 +146,40 @@ Popup 不再展示“本地模拟数据”。推荐文案为“数据来自云�
 - 不在本次改版中新增云厂商。
 - 不引入远程字体或图标字体依赖。
 - 不把 Popup 改造成完整仪表盘；复杂分析继续放在全页界面。
+
+## 11. 异常摘要、官方链接与 Logo 修正
+
+### 11.1 Popup 异常厂商行
+
+- 正常厂商保持单行：厂商 Logo、友好名称、状态徽标。
+- `degraded`、`outage` 或 `maintenance` 厂商行展开为两层：
+  1. 第一层显示厂商 Logo、名称和状态徽标。
+  2. 第二层显示该厂商最严重的活动事件标题，并提供“官方详情”外链。
+- 摘要优先使用 `ServiceStatus.statusMessage`，其次为 `incident.title`，再回退 `serviceName`。
+- 链接优先使用事件级 `sourceUrl`；缺失时回退 registry 的 `statusPageUrl`。
+- 同一厂商存在多个异常时，仅展示严重度最高、更新时间最新的一条，避免 Popup 过长。
+- 外链使用 `target="_blank"` 和 `rel="noopener noreferrer"`，不得新增 host permission。
+
+### 11.2 厂商 Logo
+
+- 所有已注册厂商使用本地打包的官方彩色 Logo，不在运行时请求 CDN。
+- 资产路径统一为 `public/images/providers/<provider-code>.svg|png`。
+- 新建共享 `ProviderLogo` 组件；资产缺失或加载失败时回退为品牌首字母，不显示破图。
+- Popup 全部厂商行接入 Logo；组件可供 Providers、Dashboard 后续复用。
+- Logo 仅作为辅助识别，厂商名称始终保留，不能只靠图形表达。
+
+### 11.3 “云计算指北”官方 Logo
+
+- 权威源为 cloudNew 的 `web/public/brand/logo.png`（蓝色三栏箭头），不得继续使用旧版“蓝云 + 绿箭头”图标。
+- 将权威母版复制到 monitor 的 `public/images/logo.png`，`AppBrand` 统一引用该文件。
+- 扩展图标以 cloudNew 的 `web/public/brand/icon_512.png` 为生成源，生成 16、32、48、128px PNG。
+- 删除或停用旧 `public/icons/icon.svg`，避免构建时重新覆盖为旧图标。
+
+### 11.4 验收补充
+
+- Popup 异常行展示真实事件摘要和可点击官方链接。
+- 无事件 deep link 时仍能打开对应厂商官方状态页。
+- 正常厂商不显示空摘要或无意义的 “No active incidents”。
+- Popup 中每家厂商均显示本地 Logo，并有首字母失败回退。
+- Popup、全页导航、工具栏和通知图标均使用蓝色三栏箭头官方 Logo。
+- 相关聚合、Logo 回退、链接优先级和 Popup 渲染均有自动化测试。

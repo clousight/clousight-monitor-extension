@@ -84,7 +84,11 @@
       "degraded": "Providers with performance issues",
       "outage": "Providers experiencing downtime",
       "maintenance": "Providers in planned maintenance"
-    }
+    },
+    "activeIncidents": "Active incidents",
+    "incidentsCount": "{count} active",
+    "incident": "Incident",
+    "allClear": "All monitored services are operational."
   },
   "providers": {
     "title": "Cloud Providers",

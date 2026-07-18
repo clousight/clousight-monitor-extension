@@ -84,7 +84,11 @@
       "degraded": "云厂商存在性能问题",
       "outage": "云厂商出现故障",
       "maintenance": "云厂商计划性维护中"
-    }
+    },
+    "activeIncidents": "活跃事件",
+    "incidentsCount": "{count} 个活跃",
+    "incident": "事件",
+    "allClear": "当前监控的服务均正常。"
   },
   "providers": {
     "title": "云厂商",

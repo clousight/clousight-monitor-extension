@@ -55,7 +55,7 @@ describe('status pages', () => {
     push.mockReset();
   });
 
-  it('shows provider-level dashboard totals and friendly provider names', () => {
+  it('shows provider-level totals and lists only active incidents', () => {
     const { pinia } = setup([
       service('AWS', 'operational', 'EC2'),
       service('AWS', 'operational', 'S3'),
@@ -65,9 +65,25 @@ describe('status pages', () => {
 
     const values = wrapper.findAll('.stat-card .stat-value').map(node => node.text());
     expect(values).toEqual(['1', '0', '1', '0']);
-    expect(wrapper.text()).toContain('Amazon Web Services');
-    expect(wrapper.text()).toContain('Google Cloud');
-    expect(wrapper.findAll('.status-badge')).toHaveLength(3);
+
+    // Operational rows (AWS) are excluded; only the GCP outage is listed.
+    const rows = wrapper.findAll('tbody tr');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].text()).toContain('Google Cloud');
+    expect(rows[0].text()).toContain('Compute Engine');
+    expect(wrapper.findAll('tbody .status-badge')).toHaveLength(1);
+    expect(wrapper.text()).not.toContain('Amazon Web Services');
+  });
+
+  it('shows an all-clear state when every provider is operational', () => {
+    const { pinia } = setup([
+      service('AWS', 'operational', 'EC2'),
+      service('GCP', 'operational', 'Compute Engine')
+    ]);
+    const wrapper = mount(Dashboard, { global: globalOptions(pinia) });
+
+    expect(wrapper.findAll('tbody tr')).toHaveLength(0);
+    expect(wrapper.text()).toContain('All monitored services are operational');
   });
 
   it('describes the top summary cards in provider terms, not service terms', () => {

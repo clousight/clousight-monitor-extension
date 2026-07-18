@@ -72,36 +72,6 @@
         </div>
 
         <div class="filter-group">
-          <label for="region-filter" class="filter-label">{{ t('common.region') }}</label>
-          <select
-            id="region-filter"
-            v-model="filters.region"
-            class="filter-select"
-            @change="applyFilters"
-          >
-            <option value="">{{ t('common.allRegions') }}</option>
-            <option v-for="region in regions" :key="region.id" :value="region.id">
-              {{ region.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label for="category-filter" class="filter-label">{{ t('common.category') }}</label>
-          <select
-            id="category-filter"
-            v-model="filters.category"
-            class="filter-select"
-            @change="applyFilters"
-          >
-            <option value="">{{ t('common.allCategories') }}</option>
-            <option v-for="category in categories" :key="category" :value="category">
-              {{ formatCategory(category) }}
-            </option>
-          </select>
-        </div>
-
-        <div class="filter-group">
           <label for="status-filter" class="filter-label">{{ t('common.status') }}</label>
           <select
             id="status-filter"
@@ -110,7 +80,6 @@
             @change="applyFilters"
           >
             <option value="">{{ t('common.allStatuses') }}</option>
-            <option value="operational">{{ t('common.operational') }}</option>
             <option value="degraded">{{ t('common.degraded') }}</option>
             <option value="outage">{{ t('common.outage') }}</option>
             <option value="maintenance">{{ t('common.maintenance') }}</option>
@@ -157,11 +126,18 @@
         </button>
       </div>
 
+      <div v-else-if="activeIncidents.length === 0" class="empty-state">
+        <div class="empty-icon" aria-hidden="true">
+          <AppIcon name="cloud" class="material-icons empty-icon-glyph" />
+        </div>
+        <p class="empty-message">{{ t('dashboard.allClear') }}</p>
+      </div>
+
       <div v-else>
         <div class="status-table-header">
-          <h2 class="section-title">{{ t('dashboard.serviceStatus') }}</h2>
+          <h2 class="section-title">{{ t('dashboard.activeIncidents') }}</h2>
           <span class="result-count">{{
-            t('dashboard.servicesCount', { count: filteredServices.length })
+            t('dashboard.incidentsCount', { count: activeIncidents.length })
           }}</span>
         </div>
 
@@ -170,9 +146,7 @@
             <thead>
               <tr>
                 <th>{{ t('common.providers') }}</th>
-                <th>{{ t('common.service') }}</th>
-                <th>{{ t('common.region') }}</th>
-                <th>{{ t('common.category') }}</th>
+                <th>{{ t('dashboard.incident') }}</th>
                 <th>{{ t('common.status') }}</th>
                 <th>{{ t('common.updatedCol') }}</th>
                 <th class="details-col">
@@ -181,11 +155,17 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="service in filteredServices" :key="service.id">
-                <td>{{ getProviderDisplayName(service.provider) }}</td>
-                <td>{{ service.serviceName }}</td>
-                <td>{{ service.region }}</td>
-                <td>{{ formatCategory(service.category) }}</td>
+              <tr v-for="service in activeIncidents" :key="service.id">
+                <td>
+                  <div class="provider-cell">
+                    <ProviderLogo
+                      :code="service.provider"
+                      :name="getProviderDisplayName(service.provider)"
+                    />
+                    <span>{{ getProviderDisplayName(service.provider) }}</span>
+                  </div>
+                </td>
+                <td>{{ service.statusMessage || service.serviceName }}</td>
                 <td><StatusBadge :status="service.status" /></td>
                 <td>{{ formatTime(service.updatedAt) }}</td>
                 <td>
@@ -216,6 +196,7 @@ import { useStatusLastUpdated } from '@/composables/useStatusLastUpdated';
 import { StatusType } from '@/types/status';
 import AppIcon from '@/components/AppIcon.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
+import ProviderLogo from '@/components/ProviderLogo.vue';
 import { getProviderDisplayName } from '@/utils/providerDisplay';
 import { deriveOverallHealth, deriveProviderSummaries } from '@/utils/statusSummary';
 
@@ -228,8 +209,6 @@ const storeError = computed(() => statusStore.error);
 // Filter state
 const filters = ref({
   provider: '',
-  region: '',
-  category: '',
   status: ''
 });
 
@@ -248,9 +227,12 @@ onMounted(async () => {
 const providerSummaries = computed(() => deriveProviderSummaries(statusStore.services));
 const overallHealth = computed(() => deriveOverallHealth(providerSummaries.value));
 const providers = computed(() => statusStore.providers);
-const regions = computed(() => statusStore.regions);
-const categories = computed(() => statusStore.categories);
 const filteredServices = computed(() => statusStore.filteredServices);
+// Active incidents only: operational rows (resolved incidents + all-clear
+// placeholders) are excluded so the list shows what actually needs attention.
+const activeIncidents = computed(() =>
+  filteredServices.value.filter(service => service.status !== 'operational')
+);
 // Check if any filters are active
 const hasActiveFilters = computed(() => {
   return Object.values(filters.value).some(value => value !== '');
@@ -272,8 +254,6 @@ async function refreshStatus() {
 function applyFilters() {
   statusStore.setFilters({
     provider: filters.value.provider || null,
-    region: filters.value.region || null,
-    category: filters.value.category || null,
     status: (filters.value.status as StatusType) || null
   });
 }
@@ -282,18 +262,9 @@ function applyFilters() {
 function clearAllFilters() {
   filters.value = {
     provider: '',
-    region: '',
-    category: '',
     status: ''
   };
   statusStore.clearFilters();
-}
-
-// Format category for display
-function formatCategory(category: string | undefined): string {
-  if (!category) return t('common.unknown');
-
-  return category.charAt(0).toUpperCase() + category.slice(1);
 }
 
 function formatTime(timestamp: number): string {
@@ -466,6 +437,10 @@ function formatTime(timestamp: number): string {
 
 .status-table {
   @apply overflow-x-auto -mx-4 sm:-mx-0;
+}
+
+.provider-cell {
+  @apply flex items-center gap-2;
 }
 
 table {

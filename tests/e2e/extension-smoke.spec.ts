@@ -6,7 +6,6 @@ import path from 'path';
 const repoRoot = path.join(__dirname, '..', '..');
 const extensionPath = path.join(repoRoot, 'dist');
 const popupWidths = [
-  { viewport: 320, expectedRoot: 320 },
   { viewport: 360, expectedRoot: 360 },
   { viewport: 375, expectedRoot: 360 }
 ];
@@ -71,6 +70,7 @@ test.describe('Clousight extension (dist)', () => {
       await expect(popup.locator('body')).not.toContainText(/\bmock\b|模拟数据/i);
       await expect(popup.getByText(`v${extensionVersion}`, { exact: true })).toBeVisible();
       await expect(popup.locator('html')).not.toHaveClass(/dark/);
+      await expect(popup.locator('body')).toHaveCSS('width', '360px');
 
       const popupRoot = popup.getByTestId('popup-root');
       for (const { viewport, expectedRoot } of popupWidths) {

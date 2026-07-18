@@ -1,5 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import fs from 'fs';
+import path from 'path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '@/i18n';
 import { useStatusStore } from '@/stores/statusStore';
@@ -49,6 +51,16 @@ describe('PopupApp', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  it('declares a fixed popup shell width before bundled CSS loads', () => {
+    const { wrapper } = setup();
+    const root = wrapper.get('[data-testid="popup-root"]');
+    const popupHtml = fs.readFileSync(path.resolve(process.cwd(), 'popup.html'), 'utf8');
+
+    expect(root.classes()).toContain('w-[360px]');
+    expect(root.classes()).not.toContain('max-w-[100vw]');
+    expect(popupHtml).toMatch(/<body[^>]+style="[^"]*width:\s*360px[^"]*"/);
   });
 
   it('shows official provider names, provider health, and official-source wording', () => {
@@ -122,14 +134,6 @@ describe('PopupApp', () => {
     });
 
     expect(wrapper.text()).toContain('2 providers need attention');
-  });
-
-  it('caps the preferred popup width to the viewport using border-box sizing', () => {
-    const { wrapper } = setup();
-
-    expect(wrapper.classes()).toEqual(
-      expect.arrayContaining(['w-[360px]', 'max-w-[100vw]', 'box-border'])
-    );
   });
 
   it('shows a fatal error with a working retry when no retained data exists', async () => {

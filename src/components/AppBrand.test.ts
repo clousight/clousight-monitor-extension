@@ -17,7 +17,7 @@ describe('AppBrand', () => {
       props: { subtitle: '多云服务健康状态' },
       global: { plugins: [i18n] }
     });
-    expect(wrapper.get('img').attributes('src')).toBe('/images/logo.svg');
+    expect(wrapper.get('img').attributes('src')).toBe('/images/logo.png');
     expect(wrapper.text()).toContain('云计算指北');
     expect(wrapper.text()).toContain('多云服务健康状态');
   });

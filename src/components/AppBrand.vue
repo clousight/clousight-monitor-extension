@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-w-0 items-center gap-2.5">
     <img
-      src="/images/logo.svg"
+      src="/images/logo.png"
       alt=""
       class="shrink-0"
       :class="compact ? 'h-8 w-8' : 'h-10 w-10'"

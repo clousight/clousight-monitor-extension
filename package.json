@@ -51,6 +51,7 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "git": "bash scripts/git.sh",
+    "gh": "bash scripts/gh.sh",
     "commit": "bash scripts/git-commit.sh",
     "push": "bash scripts/git.sh push",
     "pull": "bash scripts/git.sh pull"

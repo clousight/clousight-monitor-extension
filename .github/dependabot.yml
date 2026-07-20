@@ -8,6 +8,18 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+    ignore:
+      # TypeScript is capped at the 5.x line: @typescript-eslint (latest 8.x)
+      # only supports typescript <6.1.0, so 6/7 would break linting.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      # vue-tsc majors track TypeScript's; keep it aligned with typescript 5.x.
+      - dependency-name: vue-tsc
+        update-types: [version-update:semver-major]
+      # Vite stays on 7 (Rollup+esbuild). Vite 8 switches to rolldown, whose
+      # native bindings npm cannot lock cross-platform (breaks CI `npm ci`).
+      - dependency-name: vite
+        update-types: [version-update:semver-major]
   - package-ecosystem: github-actions
     directory: /
     schedule:

@@ -67,6 +67,23 @@ Set `experimental: true` on the registry entry if you don't yet have a verified,
 publicly reachable endpoint — experimental providers are skipped by default.
 Open an issue first if you're unsure; we'll help.
 
+## Branching & pull-request workflow
+
+We follow [GitHub Flow](https://docs.github.com/en/get-started/using-github/github-flow): `main`
+is always releasable and protected — **nobody pushes to it directly**; every change lands via a
+pull request that passes CI.
+
+1. **Fork** the repo (external contributors) and create a short-lived branch off the latest `main`.
+   Name it by type: `feat/…`, `fix/…`, `docs/…`, `chore/…`, `refactor/…`.
+   ```bash
+   git switch -c feat/short-description
+   ```
+2. Make your change and run the full gate locally (`npm run check`).
+3. Push the branch and open a PR against `main`. CI (lint · typecheck · test · build on Node 20 & 22)
+   must be green before it can merge.
+4. Address review feedback by pushing more commits to the same branch.
+5. A maintainer merges with **squash** (one PR = one commit on `main`) and deletes the branch.
+
 ## Commit & PR conventions
 
 - Use clear, imperative commit messages. [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`…) are encouraged.

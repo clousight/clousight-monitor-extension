@@ -9,6 +9,8 @@ import { fetchCloudStatus } from '@/services/statusService';
 interface StatusState {
   services: ServiceStatus[];
   lastUpdated: number | null;
+  /** Per-provider "last successfully checked" timestamps (ms epoch), by code. */
+  providerCheckedAt: Record<string, number>;
   loading: boolean;
   error: string | null;
 
@@ -24,6 +26,7 @@ export const useStatusStore = defineStore('status', {
   state: (): StatusState => ({
     services: [],
     lastUpdated: null,
+    providerCheckedAt: {},
     loading: false,
     error: null,
 
@@ -183,6 +186,26 @@ export const useStatusStore = defineStore('status', {
     },
 
     /**
+     * Load the per-provider check timestamps the background worker persists.
+     * Kept separate from the status payload because the message responses only
+     * carry `status`; the map lives in `chrome.storage.local`.
+     */
+    async loadProviderCheckedAt(): Promise<void> {
+      if (typeof chrome === 'undefined' || !chrome.storage?.local || !chrome.runtime?.id) {
+        return;
+      }
+      const data = await new Promise<Record<string, unknown>>(resolve => {
+        chrome.storage.local.get('providerCheckedAt', d =>
+          resolve((d || {}) as Record<string, unknown>)
+        );
+      });
+      const map = data.providerCheckedAt;
+      if (map && typeof map === 'object') {
+        this.providerCheckedAt = map as Record<string, number>;
+      }
+    },
+
+    /**
      * Fetch the latest cloud status from APIs
      */
     async fetchStatus() {
@@ -194,6 +217,7 @@ export const useStatusStore = defineStore('status', {
           await this.hydrateStatusFromExtensionStorage();
           this.loading = true;
           await this.fetchFromBackground();
+          await this.loadProviderCheckedAt();
         } else {
           this.loading = true;
           // Direct fetch for development
@@ -242,6 +266,7 @@ export const useStatusStore = defineStore('status', {
           await this.hydrateStatusFromExtensionStorage();
           this.loading = true;
           await this.forceRefreshFromBackground();
+          await this.loadProviderCheckedAt();
         } else {
           this.loading = true;
           // Direct fetch for development

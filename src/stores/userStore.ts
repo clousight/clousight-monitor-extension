@@ -109,6 +109,7 @@ export const useUserStore = defineStore('user', {
             }
             this.normalizeLocalePreferenceState();
             this.normalizeNotificationsState();
+            this.normalizeProvidersState();
             const loc =
               typeof data.cnLocale === 'string'
                 ? migrateLegacyLocaleCode(data.cnLocale)
@@ -130,6 +131,7 @@ export const useUserStore = defineStore('user', {
       }
       this.normalizeLocalePreferenceState();
       this.normalizeNotificationsState();
+      this.normalizeProvidersState();
       const cnRaw = localStorage.getItem('cnLocale');
       const cn = cnRaw ? migrateLegacyLocaleCode(cnRaw) : null;
       if (cn === 'auto' || (cn && (SUPPORTED_LOCALES as readonly string[]).includes(cn))) {
@@ -159,17 +161,40 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    /**
+     * Recover the watched-providers list from legacy/corrupted persisted data.
+     * Older settings stored this differently, so a non-array value can survive
+     * in chrome.storage; callers do `providers.includes(code)`, which throws on a
+     * non-array. Coerce to a clean string array (defaulting to verified providers).
+     */
+    normalizeProvidersState() {
+      const p = this.settings.providers as unknown;
+      if (!Array.isArray(p)) {
+        this.settings.providers = VERIFIED_PROVIDERS.map(x => x.code);
+        return;
+      }
+      this.settings.providers = p.filter((c): c is string => typeof c === 'string');
+    },
+
     async saveSettings() {
+      // Detach from Vue's reactive proxy: chrome.storage.set structured-clones its
+      // argument, and a Proxy throws DataCloneError, which would silently drop the
+      // write (settings never persist across reloads/updates). Persist a plain copy.
+      const plain = JSON.parse(JSON.stringify(this.settings));
       if (typeof chrome !== 'undefined' && chrome.storage) {
-        await new Promise<void>(resolve => {
-          chrome.storage.sync.set(
-            { settings: this.settings, cnLocale: this.settings.localePreference },
-            resolve
-          );
+        await new Promise<void>((resolve, reject) => {
+          chrome.storage.sync.set({ settings: plain, cnLocale: plain.localePreference }, () => {
+            const err = chrome.runtime?.lastError;
+            if (err) {
+              reject(new Error(err.message));
+            } else {
+              resolve();
+            }
+          });
         });
       } else {
-        localStorage.setItem('settings', JSON.stringify(this.settings));
-        localStorage.setItem('cnLocale', this.settings.localePreference);
+        localStorage.setItem('settings', JSON.stringify(plain));
+        localStorage.setItem('cnLocale', plain.localePreference);
       }
       this.applyTheme();
     },
@@ -204,6 +229,21 @@ export const useUserStore = defineStore('user', {
       this.settings.localePreference = pref;
       setGlobalLocale(pref);
       void this.saveSettings();
+    },
+
+    /**
+     * Set how often the background worker polls provider status. Clamps to the
+     * 1–60 minute window (matching the Settings page input), persists locally,
+     * and asks the background worker to reschedule its alarm immediately so the
+     * change takes effect without waiting for the next tick.
+     */
+    async setCheckInterval(minutes: number) {
+      const clamped = Math.min(60, Math.max(1, Math.round(minutes)));
+      this.settings.checkInterval = clamped;
+      await this.saveSettings();
+      if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'updateCheckInterval', interval: clamped });
+      }
     },
 
     updateNotificationSettings(settings: { browser?: boolean }) {

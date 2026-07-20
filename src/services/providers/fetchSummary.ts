@@ -82,9 +82,17 @@ async function fetchProvider(def: ProviderDef): Promise<NormalizedEvent[]> {
  * @param codes Optional whitelist of provider codes to fetch. Defaults to the
  *   verified providers (experimental ones are only fetched when named explicitly).
  */
+/**
+ * Which providers to fetch. `undefined` = the verified defaults; an array (even
+ * empty) is taken literally, so watching nothing fetches nothing rather than
+ * silently falling back to "all".
+ */
+export function selectProviders(codes?: string[]): ProviderDef[] {
+  return codes ? PROVIDERS.filter(p => codes.includes(p.code)) : VERIFIED_PROVIDERS;
+}
+
 export async function fetchStatusSummary(codes?: string[]): Promise<StatusSummary> {
-  const wanted =
-    codes && codes.length ? PROVIDERS.filter(p => codes.includes(p.code)) : VERIFIED_PROVIDERS;
+  const wanted = selectProviders(codes);
 
   const errors: string[] = [];
   const all: NormalizedEvent[] = [];

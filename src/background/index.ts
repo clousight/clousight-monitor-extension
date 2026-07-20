@@ -11,6 +11,7 @@ import { eventsToServiceStatuses } from '../services/statusService';
 import { addNotifications, notificationFromEvent } from '../services/notifications';
 import { meetsMinSeverity } from '../services/providers/severity';
 import { hasProviderOrigin } from '../services/permissions';
+import { VERIFIED_PROVIDERS } from '../services/providers/registry';
 import type { NormalizedEvent, Severity } from '../services/providers/types';
 import { ServiceStatus } from '../types/status';
 
@@ -105,7 +106,12 @@ async function checkStatus(): Promise<ServiceStatus[]> {
       console.warn('Clousight: some sources failed', errors);
     }
     const services = eventsToServiceStatuses(events, codes);
-    await chrome.storage.local.set({ serviceStatus: services, lastUpdated: Date.now() });
+    const now = Date.now();
+    await chrome.storage.local.set({
+      serviceStatus: services,
+      lastUpdated: now,
+      providerCheckedAt: await nextProviderCheckedAt(codes, errors, now)
+    });
     updateBadge(services);
     await processIncidentNotifications(events);
     return services;
@@ -113,6 +119,29 @@ async function checkStatus(): Promise<ServiceStatus[]> {
     console.error('Clousight: status check failed', error);
     return [];
   }
+}
+
+/**
+ * Per-provider "last successfully checked" timestamps. Only providers that
+ * fetched without error this round advance to `now`; a provider whose fetch
+ * failed keeps its previous timestamp, so the UI can show that its data is
+ * stale relative to the others. `errors` entries are formatted "CODE: message".
+ */
+async function nextProviderCheckedAt(
+  codes: string[] | undefined,
+  errors: string[],
+  now: number
+): Promise<Record<string, number>> {
+  const attempted = codes ?? VERIFIED_PROVIDERS.map(p => p.code);
+  const failed = new Set(errors.map(e => e.split(':')[0].trim()));
+  const data = await chrome.storage.local.get('providerCheckedAt');
+  const checkedAt: Record<string, number> = { ...(data.providerCheckedAt ?? {}) };
+  for (const code of attempted) {
+    if (!failed.has(code)) {
+      checkedAt[code] = now;
+    }
+  }
+  return checkedAt;
 }
 
 async function getLatestStatus(): Promise<ServiceStatus[]> {

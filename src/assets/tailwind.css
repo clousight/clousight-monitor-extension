@@ -1,6 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* Keep the existing JS-based theme (custom colors, fonts, darkMode: 'class',
+   content globs and plugins) via Tailwind v4's config-compatibility path. */
+@config '../../tailwind.config.js';
+
+/* Tailwind v4 defaults `border-color`/`divide-color` to `currentColor` instead
+   of gray-200. Restore the v3 default so existing bare `border`/`divide`
+   utilities keep their previous appearance. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: #e5e7eb;
+  }
+}
 
 @layer base {
   h1,

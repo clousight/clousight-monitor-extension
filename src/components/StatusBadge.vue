@@ -20,6 +20,8 @@ const resolvedLabel = computed(() => props.label ?? t(`status.short.${props.stat
 </script>
 
 <style scoped>
+@reference '../assets/tailwind.css';
+
 .status-operational {
   @apply bg-success-50 text-success-700 dark:bg-success-900/30 dark:text-success-300;
 }

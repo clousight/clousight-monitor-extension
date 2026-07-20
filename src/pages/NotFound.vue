@@ -32,6 +32,8 @@ function goBack() {
 </script>
 
 <style scoped>
+@reference '../assets/tailwind.css';
+
 .not-found-page {
   @apply flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900 px-4;
 }

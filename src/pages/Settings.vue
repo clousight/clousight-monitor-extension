@@ -311,6 +311,8 @@ async function save(): Promise<void> {
 </script>
 
 <style scoped>
+@reference '../assets/tailwind.css';
+
 .settings-page {
   @apply flex flex-col;
 }

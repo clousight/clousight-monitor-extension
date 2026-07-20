@@ -31,6 +31,13 @@ describe('eventsToServiceStatuses', () => {
     expect(incident?.sourceUrl).toBe('https://status.aws.amazon.com/#e1');
   });
 
+  it('carries the resolved flag through so history can be listed separately', () => {
+    const rows = eventsToServiceStatuses([ev({ severity: 'info', resolved: true })], ['AWS']);
+    const incident = rows.find(r => r.id.startsWith('AWS-e1'));
+    expect(incident?.resolved).toBe(true);
+    expect(incident?.status).toBe('operational');
+  });
+
   it('adds an operational placeholder for providers with no incidents', () => {
     const rows = eventsToServiceStatuses([ev({ provider: 'AWS' })], ['AWS', 'GCP']);
     const gcp = rows.find(r => r.provider === 'GCP');

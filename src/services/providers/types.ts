@@ -18,6 +18,8 @@ export interface NormalizedEvent {
   service_name: string | null;
   source_url: string | null;
   started_at: string | null;
+  /** True when the feed marks this incident resolved/ended (shown as history). */
+  resolved?: boolean;
 }
 
 /**

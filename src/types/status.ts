@@ -45,6 +45,9 @@ export interface ServiceStatus {
   // Link to the provider's official status page / incident (for "view details")
   sourceUrl?: string;
 
+  // True when this row represents a resolved/ended incident (recent history).
+  resolved?: boolean;
+
   // Time information
   updatedAt: number; // Timestamp
 

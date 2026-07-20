@@ -49,7 +49,8 @@ export function parseGcpIncidents(json: unknown): NormalizedEvent[] {
       service_key: null,
       service_name: null,
       source_url: `https://status.cloud.google.com/incident/${encodeURIComponent(id)}`,
-      started_at: inc.begin ? new Date(inc.begin).toISOString() : null
+      started_at: inc.begin ? new Date(inc.begin).toISOString() : null,
+      resolved: ended
     });
   }
 

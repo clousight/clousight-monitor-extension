@@ -43,6 +43,7 @@ function eventToServiceStatus(ev: NormalizedEvent, idx: number): ServiceStatus {
     status: st,
     statusMessage: ev.title,
     sourceUrl: ev.source_url || providerDef?.statusPageUrl,
+    resolved: ev.resolved ?? false,
     updatedAt: started,
     incident: {
       id: ev.external_id,

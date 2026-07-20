@@ -63,7 +63,8 @@ export function parseStatuspage(json: unknown, provider: string): NormalizedEven
       service_key: null,
       service_name: null,
       source_url: inc.shortlink || null,
-      started_at: inc.created_at ? new Date(inc.created_at).toISOString() : null
+      started_at: inc.created_at ? new Date(inc.created_at).toISOString() : null,
+      resolved
     });
   }
   return out;

@@ -15,6 +15,19 @@ export function parseSeverity(raw: string | undefined | null): Severity {
   return (SEVERITY_ORDER as readonly string[]).includes(s) ? (s as Severity) : 'info';
 }
 
+/**
+ * Whether a feed item's title marks the incident as resolved. AWS RSS keeps only
+ * the latest state per incident and prefixes resolved titles with "Service is
+ * operating normally:" / "[RESOLVED]"; the body is then a post-mortem full of
+ * past-impact words ("elevated error rates", "was unavailable"). Detect from the
+ * title only so the post-mortem body doesn't re-classify a fixed incident as an
+ * active outage.
+ */
+export function isResolvedTitle(title: string): boolean {
+  const t = title.toUpperCase();
+  return t.includes('RESOLVED') || t.includes('OPERATING NORMALLY');
+}
+
 /** Guess severity from free-text status descriptions (AWS RSS, generic feeds). */
 export function inferSeverityFromText(text: string): Severity {
   const t = text.toUpperCase();

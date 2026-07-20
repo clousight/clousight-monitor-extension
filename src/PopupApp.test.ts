@@ -5,6 +5,7 @@ import path from 'path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '@/i18n';
 import { useStatusStore } from '@/stores/statusStore';
+import { useUserStore } from '@/stores/userStore';
 import type { ServiceStatus } from '@/types/status';
 import ProviderLogo from '@/components/ProviderLogo.vue';
 import PopupApp from './PopupApp.vue';
@@ -218,6 +219,27 @@ describe('PopupApp', () => {
     expect(link.attributes('rel')).toBe('noopener noreferrer');
   });
 
+  it('shows how long an incident has been ongoing on abnormal rows', () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const store = useStatusStore();
+    store.services = [
+      {
+        ...service('AWS', 'outage'),
+        statusMessage: 'Elevated error rates',
+        incident: {
+          id: 'i1',
+          title: 'Elevated error rates',
+          startTime: Date.now() - 2 * 60 * 60 * 1000
+        }
+      }
+    ];
+    vi.spyOn(store, 'fetchStatus').mockResolvedValue();
+    const wrapper = mount(PopupApp, { global: { plugins: [pinia, i18n] } });
+
+    expect(wrapper.get('[data-testid="incident-since"]').text()).toContain('2 hours ago');
+  });
+
   it('falls back to the official status page when an event has no deep link', () => {
     const pinia = createPinia();
     setActivePinia(pinia);
@@ -241,6 +263,56 @@ describe('PopupApp', () => {
 
     expect(wrapper.find('[data-testid="incident-headline"]').exists()).toBe(false);
     expect(wrapper.find('[data-testid="incident-link"]').exists()).toBe(false);
+  });
+
+  it('lets the user change the auto-refresh interval from the popup', async () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const status = useStatusStore();
+    vi.spyOn(status, 'fetchStatus').mockResolvedValue();
+    const user = useUserStore();
+    user.settings.checkInterval = 5;
+    const setCheckInterval = vi.spyOn(user, 'setCheckInterval').mockResolvedValue();
+
+    const wrapper = mount(PopupApp, { global: { plugins: [pinia, i18n] } });
+    const select = wrapper.get('[data-testid="popup-interval"]');
+    expect((select.element as HTMLSelectElement).value).toBe('5');
+
+    await select.setValue('15');
+    expect(setCheckInterval).toHaveBeenCalledWith(15);
+  });
+
+  it('only lists and counts watched providers', () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const status = useStatusStore();
+    status.services = [service('AWS', 'operational'), service('GCP', 'operational')];
+    vi.spyOn(status, 'fetchStatus').mockResolvedValue();
+    const user = useUserStore();
+    user.settings.providers = ['GCP']; // AWS unwatched
+
+    const wrapper = mount(PopupApp, { global: { plugins: [pinia, i18n] } });
+
+    const rows = wrapper.findAll('[data-testid="popup-row"]');
+    expect(rows).toHaveLength(1);
+    expect(wrapper.text()).toContain('Google Cloud');
+    expect(wrapper.text()).not.toContain('Amazon Web Services');
+    expect(wrapper.text()).toContain('1 of 1 providers operational');
+  });
+
+  it('offers a quick language switch in the popup footer', async () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const status = useStatusStore();
+    vi.spyOn(status, 'fetchStatus').mockResolvedValue();
+    const user = useUserStore();
+    const setLocale = vi.spyOn(user, 'setLocalePreference').mockImplementation(() => {});
+    const wrapper = mount(PopupApp, { global: { plugins: [pinia, i18n] } });
+
+    await wrapper.get('[data-testid="popup-lang-zh"]').trigger('click');
+    expect(setLocale).toHaveBeenCalledWith('zh-CN');
+    await wrapper.get('[data-testid="popup-lang-en"]').trigger('click');
+    expect(setLocale).toHaveBeenCalledWith('en');
   });
 
   it('opens the dashboard and extension settings from popup actions', async () => {

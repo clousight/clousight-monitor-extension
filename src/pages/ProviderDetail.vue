@@ -141,6 +141,49 @@
           </table>
         </div>
       </div>
+
+      <!-- Recently resolved (history) -->
+      <div v-if="resolvedHistory.length" class="services-section" data-testid="resolved-history">
+        <div class="section-header">
+          <h2 class="section-title">{{ t('dashboard.recentlyResolved') }}</h2>
+          <span class="result-count">{{
+            t('dashboard.incidentsCount', { count: resolvedHistory.length })
+          }}</span>
+        </div>
+
+        <div class="services-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('dashboard.incident') }}</th>
+                <th>{{ t('common.region') }}</th>
+                <th>{{ t('common.updatedCol') }}</th>
+                <th class="details-col">
+                  <span class="sr-only">{{ t('common.viewDetails') }}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="service in resolvedHistory" :key="service.id">
+                <td>{{ service.statusMessage || service.serviceName }}</td>
+                <td>{{ service.region }}</td>
+                <td>{{ formatTime(service.updatedAt) }}</td>
+                <td>
+                  <a
+                    v-if="service.sourceUrl"
+                    :href="service.sourceUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="details-link"
+                  >
+                    {{ t('common.viewDetails') }}
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -236,6 +279,15 @@ const filteredServices = computed(() => {
     service => service.regionId === activeRegion.value || service.region === activeRegion.value
   );
 });
+
+// Recently resolved incidents for this provider, newest first — surfaced as a
+// small history so a just-fixed incident stays visible without alarming.
+const resolvedHistory = computed(() =>
+  providerServices.value
+    .filter(service => service.resolved)
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .slice(0, 10)
+);
 
 // Get unique regions for this provider
 const regions = computed(() => {

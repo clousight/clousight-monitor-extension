@@ -9,12 +9,18 @@ export interface ProviderSummary {
   worst: StatusType;
   total: number;
   regions: number;
+  /** Number of currently active (non-operational) events for this provider. */
+  active: number;
+  /** Number of recently resolved incidents kept as history. */
+  resolved: number;
   counts: Record<StatusType, number>;
   statusPageUrl?: string;
   /** One actionable summary for the provider's most important active event. */
   headline?: string;
   /** Deep link for the headline event; falls back to the registry status page. */
   incidentSourceUrl?: string;
+  /** When the headline incident started (ms epoch); falls back to its last update. */
+  incidentStartTime?: number;
 }
 
 export interface OverallHealth {
@@ -55,12 +61,20 @@ export function deriveProviderSummaries(services: ServiceStatus[]): ProviderSumm
       worst: 'operational',
       total: 0,
       regions: 0,
+      active: 0,
+      resolved: 0,
       counts: { operational: 0, degraded: 0, outage: 0, maintenance: 0 },
       statusPageUrl: getProvider(code)?.statusPageUrl,
       regionSet: new Set<string>()
     };
     current.total += 1;
     current.counts[service.status] += 1;
+    if (service.status !== 'operational') {
+      current.active += 1;
+    }
+    if (service.resolved) {
+      current.resolved += 1;
+    }
     current.regionSet.add(service.regionId || service.region);
     if (severity[service.status] > severity[current.worst]) current.worst = service.status;
     if (service.status !== 'operational' && isMoreImportant(service, current.picked)) {
@@ -74,6 +88,7 @@ export function deriveProviderSummaries(services: ServiceStatus[]): ProviderSumm
       if (picked) {
         result.headline = picked.statusMessage ?? picked.incident?.title ?? picked.serviceName;
         result.incidentSourceUrl = picked.sourceUrl ?? summary.statusPageUrl;
+        result.incidentStartTime = picked.incident?.startTime ?? picked.updatedAt;
       }
       return result;
     })

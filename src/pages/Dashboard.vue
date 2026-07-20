@@ -133,7 +133,7 @@
         <p class="empty-message">{{ t('dashboard.allClear') }}</p>
       </div>
 
-      <div v-else>
+      <div v-else data-testid="active-incidents">
         <div class="status-table-header">
           <h2 class="section-title">{{ t('dashboard.activeIncidents') }}</h2>
           <span class="result-count">{{
@@ -185,6 +185,57 @@
         </div>
       </div>
     </div>
+
+    <!-- Recently resolved (history) -->
+    <div v-if="resolvedHistory.length" class="status-table-section" data-testid="resolved-history">
+      <div class="status-table-header">
+        <h2 class="section-title">{{ t('dashboard.recentlyResolved') }}</h2>
+        <span class="result-count">{{
+          t('dashboard.incidentsCount', { count: resolvedHistory.length })
+        }}</span>
+      </div>
+
+      <div class="status-table">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ t('common.providers') }}</th>
+              <th>{{ t('dashboard.incident') }}</th>
+              <th>{{ t('common.updatedCol') }}</th>
+              <th class="details-col">
+                <span class="sr-only">{{ t('common.viewDetails') }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="service in resolvedHistory" :key="service.id">
+              <td>
+                <div class="provider-cell">
+                  <ProviderLogo
+                    :code="service.provider"
+                    :name="getProviderDisplayName(service.provider)"
+                  />
+                  <span>{{ getProviderDisplayName(service.provider) }}</span>
+                </div>
+              </td>
+              <td>{{ service.statusMessage || service.serviceName }}</td>
+              <td>{{ formatTime(service.updatedAt) }}</td>
+              <td>
+                <a
+                  v-if="service.sourceUrl"
+                  :href="service.sourceUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="details-link"
+                >
+                  {{ t('common.viewDetails') }}
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -199,12 +250,21 @@ import StatusBadge from '@/components/StatusBadge.vue';
 import ProviderLogo from '@/components/ProviderLogo.vue';
 import { getProviderDisplayName } from '@/utils/providerDisplay';
 import { deriveOverallHealth, deriveProviderSummaries } from '@/utils/statusSummary';
+import { useProviderSubscription } from '@/composables/useProviderSubscription';
 
 const { t, locale } = useI18n();
 const statusStore = useStatusStore();
 const lastUpdatedText = useStatusLastUpdated();
+const { isWatched } = useProviderSubscription();
 const loading = ref(true);
 const storeError = computed(() => statusStore.error);
+
+// Only include providers the user watches — everywhere on the dashboard — so
+// unwatched providers are neither counted, listed, nor filterable, even if their
+// data still lingers in the store before the background next refetches.
+const watchedServices = computed(() =>
+  statusStore.filteredServices.filter(s => isWatched(s.provider.toUpperCase()))
+);
 
 // Filter state
 const filters = ref({
@@ -223,15 +283,25 @@ onMounted(async () => {
   }
 });
 
-// Get computed values from store
-const providerSummaries = computed(() => deriveProviderSummaries(statusStore.services));
+// Get computed values from store (watched providers only)
+const providerSummaries = computed(() =>
+  deriveProviderSummaries(statusStore.services).filter(s => isWatched(s.code))
+);
 const overallHealth = computed(() => deriveOverallHealth(providerSummaries.value));
-const providers = computed(() => statusStore.providers);
-const filteredServices = computed(() => statusStore.filteredServices);
+const providers = computed(() => statusStore.providers.filter(p => isWatched(p.id.toUpperCase())));
+const filteredServices = computed(() => watchedServices.value);
 // Active incidents only: operational rows (resolved incidents + all-clear
 // placeholders) are excluded so the list shows what actually needs attention.
 const activeIncidents = computed(() =>
   filteredServices.value.filter(service => service.status !== 'operational')
+);
+// Recently resolved incidents, newest first — a light "history" separate from
+// the active list so a just-fixed incident is still visible without alarming.
+const resolvedHistory = computed(() =>
+  filteredServices.value
+    .filter(service => service.resolved)
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .slice(0, 10)
 );
 // Check if any filters are active
 const hasActiveFilters = computed(() => {

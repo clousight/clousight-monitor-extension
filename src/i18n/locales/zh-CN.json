@@ -87,14 +87,20 @@
     "activeIncidents": "活跃事件",
     "incidentsCount": "{count} 个活跃",
     "incident": "事件",
-    "allClear": "当前监控的服务均正常。"
+    "allClear": "当前监控的服务均正常。",
+    "recentlyResolved": "最近已解决"
   },
   "providers": {
     "title": "云厂商",
     "loading": "正在加载云厂商数据…",
-    "statusRows": "状态条目数",
-    "regionsLabel": "区域数",
-    "lastChecked": "上次探查"
+    "lastChecked": "上次探查",
+    "allNormal": "运行正常",
+    "activeEventSingular": "{count} 个活跃事件",
+    "activeEvents": "{count} 个活跃事件",
+    "resolvedSingular": "{count} 个最近已解决",
+    "resolvedCount": "{count} 个最近已解决",
+    "watchMore": "关注更多厂商：",
+    "unwatch": "取消关注"
   },
   "providerDetail": {
     "back": "返回云厂商列表",
@@ -212,7 +218,9 @@
     "retry": "重试",
     "dataSource": "数据来自云厂商官方状态源",
     "version": "v{version}",
-    "officialDetails": "官方详情"
+    "officialDetails": "官方详情",
+    "autoRefresh": "自动刷新",
+    "ongoingSince": "始于 {since}"
   },
   "routes": {
     "dashboard": "概览",

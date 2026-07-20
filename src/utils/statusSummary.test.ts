@@ -31,6 +31,18 @@ describe('statusSummary', () => {
     expect(rows[1]).toMatchObject({ code: 'GCP', worst: 'maintenance' });
   });
 
+  it('counts active events and resolved history, ignoring the total row count', () => {
+    const [summary] = deriveProviderSummaries([
+      richService('AWS', 'outage'),
+      richService('AWS', 'degraded'),
+      { ...richService('AWS', 'operational'), resolved: true },
+      { ...richService('AWS', 'operational'), resolved: true },
+      richService('AWS', 'operational') // genuine all-clear / plain operational
+    ]);
+    expect(summary.active).toBe(2);
+    expect(summary.resolved).toBe(2);
+  });
+
   it('sorts incidents before operational providers', () => {
     const rows = deriveProviderSummaries([
       service('AWS', 'operational'),
@@ -135,6 +147,21 @@ describe('statusSummary incident headlines', () => {
       richService('GCP', 'degraded', { statusMessage: 'Newer event', updatedAt: 20 })
     ]);
     expect(byRecency.headline).toBe('Newer event');
+  });
+
+  it('exposes the headline incident start time, falling back to updatedAt', () => {
+    const [withIncident] = deriveProviderSummaries([
+      richService('AWS', 'outage', {
+        updatedAt: 500,
+        incident: { id: 'i1', title: 'EC2 disruption', startTime: 1234 }
+      })
+    ]);
+    expect(withIncident.incidentStartTime).toBe(1234);
+
+    const [withoutIncident] = deriveProviderSummaries([
+      richService('GCP', 'degraded', { statusMessage: 'Blip', updatedAt: 777 })
+    ]);
+    expect(withoutIncident.incidentStartTime).toBe(777);
   });
 
   it('never emits a headline or incident link for operational providers', () => {

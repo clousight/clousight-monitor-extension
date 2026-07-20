@@ -87,14 +87,20 @@
     "activeIncidents": "Active incidents",
     "incidentsCount": "{count} active",
     "incident": "Incident",
-    "allClear": "All monitored services are operational."
+    "allClear": "All monitored services are operational.",
+    "recentlyResolved": "Recently resolved"
   },
   "providers": {
     "title": "Cloud Providers",
     "loading": "Loading providers data…",
-    "statusRows": "Status rows",
-    "regionsLabel": "Regions",
-    "lastChecked": "Last checked"
+    "lastChecked": "Last checked",
+    "allNormal": "Operational",
+    "activeEventSingular": "{count} active issue",
+    "activeEvents": "{count} active issues",
+    "resolvedSingular": "{count} recently resolved",
+    "resolvedCount": "{count} recently resolved",
+    "watchMore": "Watch more providers:",
+    "unwatch": "Unwatch"
   },
   "providerDetail": {
     "back": "Back to Providers",
@@ -212,7 +218,9 @@
     "retry": "Try again",
     "dataSource": "Data from providers’ official status sources",
     "version": "v{version}",
-    "officialDetails": "Official details"
+    "officialDetails": "Official details",
+    "autoRefresh": "Auto-refresh",
+    "ongoingSince": "Started {since}"
   },
   "routes": {
     "dashboard": "Dashboard",

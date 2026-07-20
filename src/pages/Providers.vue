@@ -29,7 +29,10 @@
       </button>
     </div>
 
-    <div v-else-if="providerCards.length === 0" class="empty-state">
+    <div
+      v-else-if="providerCards.length === 0 && unwatchedProviders.length === 0"
+      class="empty-state"
+    >
       <AppIcon name="cloud_off" class="empty-icon-glyph" />
       <p class="empty-message">{{ t('dashboard.statusUnavailable') }}</p>
       <button type="button" class="btn btn-outline" @click="refreshStatus">
@@ -37,78 +40,77 @@
       </button>
     </div>
 
-    <div v-else class="providers-grid">
-      <div v-for="provider in providerCards" :key="provider.id" class="provider-card">
-        <div class="card-header">
-          <div class="provider-heading">
-            <ProviderLogo :code="provider.code" :name="provider.name" size="md" />
-            <h2 class="provider-name">{{ provider.name }}</h2>
+    <template v-else>
+      <!-- Add providers you don't currently watch -->
+      <div v-if="unwatchedProviders.length" class="unwatched-bar">
+        <span class="unwatched-label">{{ t('providers.watchMore') }}</span>
+        <button
+          v-for="p in unwatchedProviders"
+          :key="p.code"
+          type="button"
+          class="watch-chip"
+          data-testid="watch-chip"
+          @click="onToggle(p.code)"
+        >
+          <span aria-hidden="true">+</span> {{ p.name }}
+        </button>
+      </div>
+
+      <div v-if="providerCards.length" class="providers-grid">
+        <div v-for="provider in providerCards" :key="provider.id" class="provider-card">
+          <div class="card-header">
+            <div class="provider-heading">
+              <ProviderLogo :code="provider.code" :name="provider.name" size="md" />
+              <h2 class="provider-name">{{ provider.name }}</h2>
+            </div>
+            <StatusBadge :status="provider.worst" />
           </div>
-          <StatusBadge :status="provider.worst" />
-        </div>
 
-        <div class="card-body">
-          <div class="stats-row">
-            <div class="stat-item">
-              <span class="stat-label">{{ t('providers.statusRows') }}</span>
-              <span class="stat-value" data-testid="provider-total">{{ provider.total }}</span>
-            </div>
-
-            <div class="stat-item">
-              <span class="stat-label">{{ t('providers.regionsLabel') }}</span>
-              <span class="stat-value" data-testid="provider-regions">{{ provider.regions }}</span>
-            </div>
+          <div class="card-body">
+            <p
+              v-if="provider.active > 0"
+              class="card-summary card-summary-active"
+              data-testid="provider-active"
+            >
+              {{ activeText(provider.active) }}
+            </p>
+            <p v-else class="card-summary card-summary-ok" data-testid="provider-ok">
+              {{ t('providers.allNormal') }}
+            </p>
+            <p v-if="provider.resolved > 0" class="card-resolved" data-testid="provider-resolved">
+              {{ resolvedText(provider.resolved) }}
+            </p>
           </div>
 
-          <div class="status-row">
-            <div class="status-item status-operational">
-              <span class="value" data-testid="provider-count-operational">
-                {{ provider.counts.operational }}
-              </span>
-              <span class="label">{{ t('common.operational') }}</span>
-            </div>
+          <p class="card-checked" data-testid="card-checked">
+            {{ t('providers.lastChecked') }} {{ providerCheckedText(provider.code) }}
+          </p>
 
-            <div class="status-item status-degraded">
-              <span class="value" data-testid="provider-count-degraded">
-                {{ provider.counts.degraded }}
-              </span>
-              <span class="label">{{ t('common.degraded') }}</span>
-            </div>
-
-            <div class="status-item status-outage">
-              <span class="value" data-testid="provider-count-outage">
-                {{ provider.counts.outage }}
-              </span>
-              <span class="label">{{ t('common.outage') }}</span>
-            </div>
-
-            <div class="status-item status-maintenance">
-              <span class="value" data-testid="provider-count-maintenance">
-                {{ provider.counts.maintenance }}
-              </span>
-              <span class="label">{{ t('common.maintenance') }}</span>
-            </div>
+          <div class="card-footer">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm unwatch-btn"
+              data-testid="unwatch-btn"
+              @click="onToggle(provider.code)"
+            >
+              {{ t('providers.unwatch') }}
+            </button>
+            <a
+              v-if="provider.statusPageUrl"
+              :href="provider.statusPageUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-outline btn-sm"
+            >
+              {{ t('common.officialStatus') }}
+            </a>
+            <router-link :to="`/providers/${provider.id}`" class="btn btn-outline btn-sm">
+              {{ t('common.viewDetails') }}
+            </router-link>
           </div>
-        </div>
-
-        <p class="card-checked">{{ t('providers.lastChecked') }} {{ lastCheckedText }}</p>
-
-        <div class="card-footer">
-          <a
-            v-if="provider.statusPageUrl"
-            :href="provider.statusPageUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-outline btn-sm"
-          >
-            {{ t('common.officialStatus') }}
-          </a>
-          <router-link :to="`/providers/${provider.id}`" class="btn btn-outline btn-sm">
-            {{ t('common.viewDetails') }}
-          </router-link>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -120,12 +122,51 @@ import AppIcon from '@/components/AppIcon.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import ProviderLogo from '@/components/ProviderLogo.vue';
 import { useStatusLastUpdated } from '@/composables/useStatusLastUpdated';
+import { useProviderSubscription } from '@/composables/useProviderSubscription';
 import { deriveProviderSummaries } from '@/utils/statusSummary';
+import { PROVIDERS } from '@/services/providers/registry';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const statusStore = useStatusStore();
 const lastCheckedText = useStatusLastUpdated();
+const { isWatched, toggle } = useProviderSubscription();
 const loading = ref(true);
+
+// Providers not currently watched — offered as quick "add" chips so the user can
+// choose to monitor only the ones they care about without leaving this page.
+const unwatchedProviders = computed(() => PROVIDERS.filter(p => !isWatched(p.code)));
+
+/** Watch/unwatch a provider, then refresh so the change is reflected immediately. */
+async function onToggle(code: string): Promise<void> {
+  await toggle(code);
+  await refreshStatus();
+}
+
+function activeText(count: number): string {
+  const key = count === 1 ? 'providers.activeEventSingular' : 'providers.activeEvents';
+  return t(key, { count });
+}
+
+function resolvedText(count: number): string {
+  const key = count === 1 ? 'providers.resolvedSingular' : 'providers.resolvedCount';
+  return t(key, { count });
+}
+
+/**
+ * Per-provider last-checked time. A provider advances only when its own fetch
+ * succeeds, so a failing provider correctly shows an older time than the rest;
+ * providers without a recorded time yet fall back to the global last-updated.
+ */
+function providerCheckedText(code: string): string {
+  const ts = statusStore.providerCheckedAt[code];
+  if (!ts) {
+    return lastCheckedText.value;
+  }
+  return new Intl.DateTimeFormat(locale.value, {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }).format(new Date(ts));
+}
 
 const hasAnyStatusRows = computed(() => statusStore.services.length > 0);
 const storeError = computed(() => statusStore.error);
@@ -151,8 +192,13 @@ async function refreshStatus() {
   }
 }
 
-// Provider cards data
-const providerCards = computed(() => deriveProviderSummaries(statusStore.services));
+// Provider cards data — only for watched providers. Filtering on the watch list
+// (not just whatever is in the store) makes unwatch take effect immediately and
+// hides any stale rows left over from a previous fetch, independent of when the
+// background next refetches.
+const providerCards = computed(() =>
+  deriveProviderSummaries(statusStore.services).filter(s => isWatched(s.code))
+);
 </script>
 
 <style scoped>
@@ -245,43 +291,43 @@ const providerCards = computed(() => deriveProviderSummaries(statusStore.service
 }
 
 .card-body {
-  @apply p-4;
-}
-
-.stats-row {
-  @apply flex justify-between mb-4;
-}
-
-.stat-item {
-  @apply flex flex-col;
-}
-
-.stat-label {
-  @apply text-xs text-slate-500 dark:text-slate-400;
-}
-
-.stat-value {
-  @apply text-lg font-medium text-slate-800 dark:text-slate-200;
-}
-
-.status-row {
-  @apply grid grid-cols-2 gap-2;
-}
-
-.status-item {
-  @apply flex flex-col items-center p-2 rounded bg-slate-50 dark:bg-slate-700/50;
-}
-
-.status-item .value {
-  @apply text-lg font-medium;
-}
-
-.status-item .label {
-  @apply text-xs text-slate-500 dark:text-slate-400;
+  @apply p-4 space-y-1;
 }
 
 .card-footer {
-  @apply p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/30 flex justify-end gap-2;
+  @apply p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/30 flex flex-wrap justify-end gap-2;
+}
+
+.card-summary {
+  @apply text-sm font-medium;
+}
+
+.card-summary-active {
+  @apply text-warning-700 dark:text-warning-300;
+}
+
+.card-summary-ok {
+  @apply text-success-700 dark:text-success-400;
+}
+
+.card-resolved {
+  @apply mt-1 text-xs text-slate-500 dark:text-slate-400;
+}
+
+.unwatch-btn {
+  @apply mr-auto;
+}
+
+.unwatched-bar {
+  @apply flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/40 p-3;
+}
+
+.unwatched-label {
+  @apply text-xs font-medium text-slate-500 dark:text-slate-400;
+}
+
+.watch-chip {
+  @apply inline-flex items-center gap-1 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 hover:border-primary-400 hover:text-primary-700 dark:hover:text-primary-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 transition-colors;
 }
 
 .empty-state {

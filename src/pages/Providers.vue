@@ -202,6 +202,8 @@ const providerCards = computed(() =>
 </script>
 
 <style scoped>
+@reference '../assets/tailwind.css';
+
 .providers-page {
   @apply space-y-6;
 }

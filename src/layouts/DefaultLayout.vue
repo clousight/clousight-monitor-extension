@@ -93,6 +93,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+@reference '../assets/tailwind.css';
+
 .sidebar-header {
   @apply flex h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-800;
 }

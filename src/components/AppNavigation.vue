@@ -69,6 +69,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+@reference '../assets/tailwind.css';
+
 .app-navigation {
   @apply flex h-full flex-col justify-between;
 }

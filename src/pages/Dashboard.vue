@@ -362,6 +362,8 @@ function formatTime(timestamp: number): string {
 </script>
 
 <style scoped>
+@reference '../assets/tailwind.css';
+
 .dashboard-page {
   @apply space-y-6;
 }

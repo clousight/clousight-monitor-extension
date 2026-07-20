@@ -113,6 +113,8 @@ onActivated(() => {
 </script>
 
 <style scoped>
+@reference '../assets/tailwind.css';
+
 .notifications-page {
   @apply flex flex-col space-y-4;
 }

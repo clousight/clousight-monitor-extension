@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+dist-firefox/
 *.zip
 
 # Local env / secrets
@@ -30,6 +31,10 @@ yarn-error.log*
 .idea/
 .vscode/
 *.swp
+
+# Local AI tooling (not part of the project)
+.claude/
+.superpowers/
 
 # VitePress build output
 docs/.vitepress/dist/

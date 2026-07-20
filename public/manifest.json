@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Clousight — Cloud Status Monitor",
   "version": "0.1.0",
-  "description": "Watch multi-cloud service status (AWS, Azure, GCP, Alibaba, Tencent, Huawei, Volcano) locally. No account, no server.",
+  "description": "Watch multi-cloud service status (AWS, Azure, GCP, Cloudflare, Alibaba, Tencent & more) locally. No account, no server.",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -28,7 +28,10 @@
     "https://azure.status.microsoft/*",
     "https://status.cloud.google.com/*",
     "https://status.alibabacloud.com/*",
-    "https://status.tencentcloud.com/*"
+    "https://status.tencentcloud.com/*",
+    "https://www.cloudflarestatus.com/*",
+    "https://status.digitalocean.com/*",
+    "https://status.linode.com/*"
   ],
   "optional_host_permissions": [
     "https://status.huaweicloud.com/*",

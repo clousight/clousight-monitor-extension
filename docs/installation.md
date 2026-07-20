@@ -5,34 +5,56 @@ status locally. There is no backend, no account, and no telemetry — you instal
 it, enable the providers you care about, and it runs entirely in your browser.
 
 The extension currently installs **from source**. Listings on the Chrome Web
-Store and Edge Add-ons are planned but **not yet published**.
+Store, Edge Add-ons, and Firefox Add-ons (AMO) are planned but **not yet
+published**.
 
 ## Requirements
 
 - **Node.js 18+** — needed to build the extension.
-- A **Chromium-based browser**: Chrome, Edge, or Brave.
+- A **supported browser** — any Chromium-based browser (Chrome, Edge, Brave,
+  Opera, Vivaldi…) or **Firefox**.
 - **Git** — to clone the repository.
 
 ## Install from source
 
-### 1. Clone and build
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/clousight/clousight-monitor-extension.git
 cd clousight-monitor-extension
 npm install
-npm run build:extension
 ```
 
-The build produces a `dist/` folder — this is the unpacked extension you load
-into the browser.
+### 2. Build for your browser
 
-### 2. Load the unpacked extension
+The same code base builds for every browser — only the manifest's `background`
+shape (and Firefox's add-on id) differ. Pick the matching build:
+
+```bash
+npm run build:chrome     # Chromium (Chrome/Edge/Brave/Opera/…) → dist/
+npm run build:firefox    # Firefox → dist-firefox/
+```
+
+`npm run build:extension` is kept as an alias for `build:chrome`. Each command
+produces an **unpacked extension** folder you load into the browser.
+
+### 3. Load the unpacked extension
+
+**Chromium browsers:**
 
 1. Open `chrome://extensions` (or `edge://extensions`, `brave://extensions`).
 2. Enable **Developer mode** (toggle in the top-right corner).
-3. Click **Load unpacked**.
-4. Select the `dist/` folder produced by the build.
+3. Click **Load unpacked** and select the `dist/` folder.
+
+**Firefox:**
+
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on…**.
+3. Select `dist-firefox/manifest.json`.
+
+> Firefox unloads temporary add-ons when it restarts. For a persistent install
+> you must package and sign the add-on via [addons.mozilla.org](https://addons.mozilla.org)
+> (`web-ext sign`); that is a distribution step, not required for local use.
 
 Clousight now appears in your toolbar. Pin it for quick access to the popup.
 
@@ -53,10 +75,11 @@ extensions.
 
 1. Click the Clousight toolbar icon to open the popup.
 2. Open **Settings** and choose the providers you use (AWS, Azure, Google
-   Cloud, Alibaba Cloud, Tencent Cloud are verified and enabled by default).
+   Cloud, Cloudflare, DigitalOcean, Linode, Alibaba Cloud, and Tencent Cloud
+   are verified and enabled by default).
 3. Optionally adjust the check interval and enable browser notifications.
-4. Create one or more **subscription rules** so you get notified about the
-   incidents that matter to you.
+4. Set the **minimum severity** for notifications so you are alerted about the
+   incidents that matter to you, for your enabled providers.
 
 ## Verified vs. experimental providers
 
@@ -67,6 +90,9 @@ extensions.
 | Google Cloud | Verified — works by default |
 | Alibaba Cloud | Verified — works by default |
 | Tencent Cloud | Verified — works by default |
+| Cloudflare | Verified — works by default |
+| DigitalOcean | Verified — works by default |
+| Linode (Akamai) | Verified — works by default |
 | Huawei Cloud | Experimental — opt-in |
 | Volcano Engine | Experimental — opt-in |
 
@@ -81,10 +107,11 @@ To update an installed-from-source copy:
 ```bash
 git pull
 npm install
-npm run build:extension
+npm run build:chrome     # or: npm run build:firefox
 ```
 
-Then reload the extension from `chrome://extensions`.
+Then reload the extension from `chrome://extensions` (or, in Firefox, from
+`about:debugging`).
 
 ## Uninstalling
 

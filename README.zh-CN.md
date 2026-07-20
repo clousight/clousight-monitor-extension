@@ -29,6 +29,9 @@
 | Google Cloud | ✅ 可用 | `incidents.json` |
 | 阿里云 | ✅ 可用 | 状态站 JSON API |
 | 腾讯云 | ✅ 可用 | 状态站 JSON API |
+| Cloudflare | ✅ 可用 | Atlassian Statuspage |
+| DigitalOcean | ✅ 可用 | Atlassian Statuspage |
+| Linode (Akamai) | ✅ 可用 | Atlassian Statuspage |
 | 华为云 | 🧪 实验性 | 暂无确认的公开端点（状态站疑似区域受限） |
 | 火山引擎 | 🧪 实验性 | 暂无确认的公开端点 |
 
@@ -38,20 +41,35 @@
 
 ### 从源码安装（开发）
 
-前置:**Node.js 18+** 与一个 Chromium 内核浏览器（Chrome、Edge、Brave…）。
+前置:**Node.js 18+** 与一个受支持的浏览器 —— 任意 Chromium 内核浏览器
+（Chrome、Edge、Brave、Opera、Vivaldi…）或 Firefox。
 
 ```bash
 git clone https://github.com/clousight/clousight-monitor-extension.git
 cd clousight-monitor-extension
 npm install
-npm run build:extension
 ```
 
-然后在浏览器加载:
+同一份代码可构建到所有浏览器,只有 manifest 不同。按你的浏览器选择构建命令:
 
-1. 打开 `chrome://extensions/`
-2. 打开 **开发者模式**
-3. 点击 **加载已解压的扩展程序**,选择 `dist/` 目录
+```bash
+npm run build:chrome     # Chromium 系（Chrome/Edge/Brave/Opera/…）→ dist/
+npm run build:firefox    # Firefox → dist-firefox/
+```
+
+`npm run build:extension` 保留为 `build:chrome` 的别名。
+
+**在 Chromium 系浏览器加载:**
+
+1. 打开 `chrome://extensions/`（或 `edge://extensions`、`brave://extensions`）。
+2. 打开 **开发者模式**。
+3. 点击 **加载已解压的扩展程序**,选择 `dist/` 目录。
+
+**在 Firefox 加载:**
+
+1. 打开 `about:debugging#/runtime/this-firefox`。
+2. 点击 **临时载入附加组件（Load Temporary Add-on）**。
+3. 选择 `dist-firefox/manifest.json`。
 
 自动重建的开发循环:`npm run dev:ext`（改动时重建 `dist/`;在浏览器里重新加载插件即可生效）。
 
@@ -62,7 +80,10 @@ npm run build:extension
 | `npm run dev` | Web UI 的 Vite 开发服务器（快速迭代页面/组件） |
 | `npm run dev:ext` | 构建插件到 `dist/` 并监听变更 |
 | `npm run build` | 类型检查 + 构建 |
-| `npm run build:extension` | 完整插件构建（含构建后资源拷贝） |
+| `npm run build:extension` | 完整 Chromium 构建到 `dist/`（`build:chrome` 的别名） |
+| `npm run build:chrome` | Chromium 构建（Chrome/Edge/Brave/…）→ `dist/` |
+| `npm run build:firefox` | Firefox 构建 → `dist-firefox/` |
+| `npm run lint:firefox` | 构建 Firefox 版并用 Mozilla `web-ext lint` 校验（经 `npx`） |
 | `npm run lint` | ESLint（不改文件） |
 | `npm run lint:fix` | ESLint 自动修复 |
 | `npm run format` | 对 `src/` 跑 Prettier |

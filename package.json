@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": false,
   "license": "MIT",
-  "description": "Clousight — a zero-backend, privacy-friendly browser extension that watches multi-cloud service status (AWS, Azure, GCP, Alibaba, Tencent, Huawei, Volcano) locally.",
+  "description": "Clousight — a zero-backend, privacy-friendly browser extension that watches multi-cloud service status (AWS, Azure, GCP, Cloudflare, DigitalOcean, Linode, Alibaba, Tencent, and more) locally.",
   "author": {
     "name": "Clousight Contributors"
   },
@@ -32,6 +32,9 @@
     "dev:ext": "vite build --watch",
     "build": "vue-tsc --noEmit && vite build",
     "build:extension": "vue-tsc --noEmit && vite build && node scripts/build-extension.js",
+    "build:chrome": "vue-tsc --noEmit && vite build && node scripts/build-extension.js --target=chrome",
+    "build:firefox": "vue-tsc --noEmit && vite build && node scripts/build-extension.js --target=firefox",
+    "lint:firefox": "npm run build:firefox && npx --yes web-ext lint -s dist-firefox --no-config-discovery",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore",
     "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",

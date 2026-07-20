@@ -10,8 +10,8 @@ public cloud status feeds in the browser.
 
 ## Short description (≤132 chars)
 
-> Watch AWS, Azure, GCP, Alibaba & Tencent Cloud status from your toolbar. No
-> account, no server, no tracking.
+> Watch AWS, Azure, GCP, Cloudflare, Alibaba, Tencent & more cloud status from
+> your toolbar. No account, no server, no tracking.
 
 ## Detailed description (draft)
 
@@ -23,7 +23,7 @@ in your browser.
 - Local rules: pick the providers, regions, and services you care about.
 - Details link out to each provider's official status page.
 - Optional, bring-your-own-key AI briefings (your key stays local).
-- 9 languages. Open source (MIT).
+- Bilingual UI (English + 简体中文). Open source (MIT).
 
 ## Permission justifications
 
@@ -32,7 +32,7 @@ in your browser.
 | `storage` | Persist settings, subscription rules, and notification history locally. |
 | `alarms` | Run a periodic background status check. |
 | `notifications` | Show a browser notification when a matching incident appears. |
-| Host access to provider status domains (AWS, Azure, GCP, Alibaba, Tencent) | Fetch each provider's public status feed to determine current status. |
+| Host access to provider status domains (AWS, Azure, GCP, Cloudflare, DigitalOcean, Linode, Alibaba, Tencent) | Fetch each provider's public status feed to determine current status. |
 | Optional host access (Huawei, Volcano) | Requested only if the user enables these providers. |
 
 ## Data safety / privacy

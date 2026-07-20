@@ -8,7 +8,7 @@ By participating you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md)
 
 - 🐛 **Report bugs** — open an issue with clear reproduction steps.
 - 🌩️ **Add a cloud provider** — see [Adding a provider](#adding-a-provider) below (great first contribution).
-- 🌍 **Translate** — improve or complete one of the 9 locale files under `src/i18n/locales/`.
+- 🌍 **Translate** — improve the English or Simplified Chinese locale files under `src/i18n/locales/`.
 - ✨ **Features & fixes** — check open issues or propose something new first via an issue.
 
 ## Development setup

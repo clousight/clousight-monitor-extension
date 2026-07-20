@@ -29,6 +29,9 @@ Also known by its Chinese name **云计算指北**.
 | Google Cloud | ✅ Working | `incidents.json` |
 | Alibaba Cloud | ✅ Working | Status-site JSON API |
 | Tencent Cloud | ✅ Working | Status-site JSON API |
+| Cloudflare | ✅ Working | Atlassian Statuspage |
+| DigitalOcean | ✅ Working | Atlassian Statuspage |
+| Linode (Akamai) | ✅ Working | Atlassian Statuspage |
 | Huawei Cloud | 🧪 Experimental | No confirmed public endpoint (status host is region-restricted) |
 | Volcano Engine | 🧪 Experimental | No confirmed public endpoint |
 
@@ -40,20 +43,36 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### From source (development)
 
-Prerequisites: **Node.js 18+** and a Chromium-based browser (Chrome, Edge, Brave…).
+Prerequisites: **Node.js 18+** and a supported browser — any Chromium-based
+browser (Chrome, Edge, Brave, Opera, Vivaldi…) or Firefox.
 
 ```bash
 git clone https://github.com/clousight/clousight-monitor-extension.git
 cd clousight-monitor-extension
 npm install
-npm run build:extension
 ```
 
-Then load it in your browser:
+The same code base builds for every browser; only the manifest differs. Pick
+the build for your browser:
 
-1. Open `chrome://extensions/`
-2. Enable **Developer mode**
-3. Click **Load unpacked** and select the `dist/` directory
+```bash
+npm run build:chrome     # Chromium (Chrome/Edge/Brave/Opera/…) → dist/
+npm run build:firefox    # Firefox → dist-firefox/
+```
+
+`npm run build:extension` is kept as an alias for `build:chrome`.
+
+**Load in a Chromium browser:**
+
+1. Open `chrome://extensions/` (or `edge://extensions`, `brave://extensions`).
+2. Enable **Developer mode**.
+3. Click **Load unpacked** and select the `dist/` directory.
+
+**Load in Firefox:**
+
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on…**.
+3. Select `dist-firefox/manifest.json`.
 
 For an auto-rebuilding dev loop: `npm run dev:ext` (rebuilds `dist/` on change; reload the extension in the browser to pick up changes).
 
@@ -64,7 +83,10 @@ For an auto-rebuilding dev loop: `npm run dev:ext` (rebuilds `dist/` on change; 
 | `npm run dev` | Vite dev server for the web UI (fast iteration on pages/components) |
 | `npm run dev:ext` | Build the extension into `dist/` and watch for changes |
 | `npm run build` | Type-check and build |
-| `npm run build:extension` | Full extension build (adds post-build asset copy) |
+| `npm run build:extension` | Full Chromium extension build into `dist/` (alias for `build:chrome`) |
+| `npm run build:chrome` | Chromium build (Chrome/Edge/Brave/…) → `dist/` |
+| `npm run build:firefox` | Firefox build → `dist-firefox/` |
+| `npm run lint:firefox` | Build Firefox + validate with Mozilla `web-ext lint` (via `npx`) |
 | `npm run lint` | ESLint (no changes) |
 | `npm run lint:fix` | ESLint with autofix |
 | `npm run format` | Prettier write over `src/` |
@@ -90,10 +112,10 @@ clousight-monitor-extension/
 │   ├── layouts/          # Layout shells
 │   ├── pages/            # Dashboard, Providers, Settings, …
 │   ├── router/           # Vue Router
-│   ├── services/         # Status, subscriptions, notifications, LLM
+│   ├── services/         # Status, notifications, permissions, LLM
 │   │   └── providers/    # Declarative provider registry + feed parsers
 │   ├── stores/           # Pinia stores
-│   ├── i18n/             # 9-language locale files
+│   ├── i18n/             # locale files (English + Simplified Chinese)
 │   ├── types/            # Shared TypeScript types
 │   └── utils/            # Helpers
 ├── scripts/              # Build & icon-generation scripts
@@ -103,7 +125,7 @@ clousight-monitor-extension/
 ## Roadmap
 
 - [x] Port provider status ingestion into the extension background worker (local, zero-backend fetch + normalization)
-- [x] Local subscription rules + event matching in `chrome.storage`
+- [x] Provider-level browser notifications with a minimum-severity threshold
 - [x] Remove all remote-API / auth dependencies
 - [x] Bring-your-own-key LLM incident briefings
 - [x] On-demand host permissions for experimental providers

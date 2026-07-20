@@ -50,6 +50,33 @@ export const PROVIDERS: ProviderDef[] = [
     statusPageUrl: 'https://status.tencentcloud.com/',
     origin: 'https://status.tencentcloud.com/*'
   },
+  // Cloudflare, DigitalOcean & Linode expose standard Atlassian Statuspage feeds
+  // (public /api/v2/incidents.json, no auth), so the generic `statuspage` parser
+  // handles them as-is. Cloudflare canonicalizes to its www host.
+  {
+    code: 'CLOUDFLARE',
+    name: 'Cloudflare',
+    parser: 'statuspage',
+    feedUrl: 'https://www.cloudflarestatus.com/api/v2/incidents.json',
+    statusPageUrl: 'https://www.cloudflarestatus.com/',
+    origin: 'https://www.cloudflarestatus.com/*'
+  },
+  {
+    code: 'DIGITALOCEAN',
+    name: 'DigitalOcean',
+    parser: 'statuspage',
+    feedUrl: 'https://status.digitalocean.com/api/v2/incidents.json',
+    statusPageUrl: 'https://status.digitalocean.com/',
+    origin: 'https://status.digitalocean.com/*'
+  },
+  {
+    code: 'LINODE',
+    name: 'Linode (Akamai)',
+    parser: 'statuspage',
+    feedUrl: 'https://status.linode.com/api/v2/incidents.json',
+    statusPageUrl: 'https://status.linode.com/',
+    origin: 'https://status.linode.com/*'
+  },
 
   // --- Experimental: no verified machine-readable feed yet. -------------------
   // Volcano's status data appears to come from a third-party CDN blob and Huawei's

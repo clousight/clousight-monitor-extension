@@ -22,7 +22,8 @@ export async function loadStoredTheme(): Promise<ThemePreference> {
   if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
     return new Promise(resolve => {
       chrome.storage.sync.get(['settings'], data => {
-        resolve(normalizeTheme(data.settings?.theme));
+        const settings = (data as { settings?: { theme?: unknown } }).settings;
+        resolve(normalizeTheme(settings?.theme));
       });
     });
   }

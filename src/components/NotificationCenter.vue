@@ -312,6 +312,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+@reference '../assets/tailwind.css';
+
 .notification-center {
   @apply bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 ring-1 ring-slate-900/5 dark:ring-white/10 overflow-hidden;
 }
